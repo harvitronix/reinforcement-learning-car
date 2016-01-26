@@ -1,6 +1,7 @@
 from game import lapmaster_game
 
-target_game = lapmster_game.GameState
+target_game = lapmaster_game.GameState()
 
 while 'bear' != 'echo':
-    target_game.frame_step(0)
+    print("Stepping.")
+    target_game.frame_step([True, 0, True, 0])

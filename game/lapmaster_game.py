@@ -9,39 +9,34 @@ Turn left, press A. Turn right, press D.
 import os
 import pygame
 from pygame.locals import *
-import car
+from . import car
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (8, 30)
-
 screen_size = (1024, 768)
 screen = pygame.display.set_mode(screen_size)
-
-MAX_LAPS = 10
-car.MAX_LAPS = MAX_LAPS
-
 screen.fill((0, 192, 0))
 
 clock = pygame.time.Clock()
 
-running = True
-
-red = car.Sprite()
-red.Load('red', 360)
-car.xs = screen_size[0]/2
-car.ys = screen_size[1]/2
-track = pygame.image.load('track.png')
-visible_track = pygame.image.load('track_textured.png')
+track = pygame.image.load('./game/track.png')
+visible_track = pygame.image.load('./game/track_textured.png')
 
 trap = pygame.Rect(844, 1324, 140, 200)
 trk = track.get_at((0, 0))
 
-inbox = trap.collidepoint(red.xc, red.yc)
-lap = 0
-
-frames = 0
-gear_lock = 24
 
 class GameState:
+
+    gear_lock = 0
+    frames = 0
+    red = car.Sprite()
+    car.xs = screen_size[0]/2
+    car.ys = screen_size[1]/2
+
+    def __init__(self):
+        self.frames = 0
+        self.gear_lock = 0
+        self.red.Load('red', 360)
 
     def frame_step(self, input_array):
         """
@@ -51,68 +46,49 @@ class GameState:
         2: gear up
         3: gear down
         """
-        gear_lock += 1
+        self.gear_lock += 1
         clock.tick(24)
-        frames = frames + 1
-        car.frames = frames
+        self.frames += 1
+        car.frames = self.frames
 
-        red.Update()
-        if trap.collidepoint(red.xc, red.yc) == 0:
-            if inbox == 1:
-                red.lap += 1
-                inbox = 0
-        else:
-            inbox = 1
+        self.red.Update()
 
-        screen.blit(visible_track, (car.xs-red.xc, car.ys-red.yc))
-        red.Draw(car.xs, car.ys, screen)
+        screen.blit(visible_track,
+                    (car.xs - self.red.xc, car.ys - self.red.yc)
+        )
+        self.red.Draw(car.xs, car.ys, screen)
 
         pygame.display.flip()
         onboard = True
-        if red.xc >= track.get_width():
+        if self.red.xc >= track.get_width():
             onboard = False
-        if red.xc < 0:
+        if self.red.xc < 0:
             onboard = False
-        if red.yc >= track.get_height():
+        if self.red.yc >= track.get_height():
             onboard = False
-        if red.yc < 0:
+        if self.red.yc < 0:
             onboard = False
         if onboard:
-            clr = track.get_at((red.xc, red.yc))
+            clr = track.get_at((self.red.xc, self.red.yc))
         else:
             clr = trk
 
-        red.wobble = 0
-        if red.lap > MAX_LAPS:
-            print('Total Time = ', frames/24)
-
-            for i in range(300):
-                clock.tick(24)
-            exit()
+        self.red.wobble = 0
 
         if clr == trk:
-            red.wobble = 10
-            if red.gear > 1:
-                red.gear = 1
-                red.speed = 1
+            self.red.wobble = 10
+            if self.red.gear > 1:
+                self.red.gear = 1
+                self.red.speed = 1
 
-        key = pygame.key.get_pressed()
-
-        if red.gear > 0:
-            if key[K_d]:
-                red.view = (red.view + 2) % 360
-            elif key[K_a]:
-                red.view = (red.view + 358) % 360
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    running = False
-                elif event.key == K_UP:
-                    if gear_lock > 24 and red.gear < 4:
-                        red.gear += 1
-                        gear_lock = 0
-                elif event.key == K_DOWN and red.gear > 0:
-                    red.gear = red.gear - 1
+        if self.red.gear > 0:
+            if input_array[1]:  # Turn right.
+                self.red.view = (self.red.view + 2) % 360
+            if input_array[0]:  # Turn left.
+                self.red.view = (self.red.view + 358) % 360
+            if input_array[2]:  # Gear up
+                if self.gear_lock > 24 and self.red.gear < 4:
+                    self.red.gear += 1
+                    self.gear_lock = 0
+            if input_array[3] and self.red.gear > 0:  # Gear down
+                self.red.gear = self.red.gear - 1

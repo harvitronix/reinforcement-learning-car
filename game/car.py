@@ -24,9 +24,20 @@ pygame.mixer.init()
 
 
 class Sprite():
+
+    speed = 0
+    gear = 1
+    lap = 0
+    view = 270
+    xf = 912
+    xc = 912
+    yc = 1410
+    yf = 1410
+    images = []
+    wobble = 0
+
     def Load(self, path, NF):
         self.view = 270
-        self.images = []
         self.NF = NF
         self.xc = 912
         self.yc = 1410
@@ -38,7 +49,7 @@ class Sprite():
         self.lap = 0
         for f in range(NF):
             nv = len(str(f+1))
-            name = path + '/fr_'
+            name = './game/' + path + '/fr_'
             if nv == 1:
                 name += '000'
             if nv == 2:
@@ -46,6 +57,8 @@ class Sprite():
             if nv == 3:
                 name += '0'
             self.images += [pygame.image.load(name+str(f+1)+'.png')]
+        print("AAAA")
+        print(self.images)
 
     def Draw(self, x, y, screen):
         view = self.view + int(random.gauss(0, self.wobble))
