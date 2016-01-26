@@ -84,3 +84,5 @@ class Sprite():
         self.yf = self.yf + vy*dt
         self.xc = int(self.xf)
         self.yc = int(self.yf)
+
+        return self.speed
