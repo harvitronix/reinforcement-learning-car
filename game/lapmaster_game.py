@@ -54,7 +54,7 @@ class GameState:
         clock.tick(24)
         self.frames += 1
         car.frames = self.frames
-        current_speed = self.red.Update()
+        reward = self.red.Update()
 
         # Move the car, I think.
         screen.blit(visible_track,
@@ -85,7 +85,7 @@ class GameState:
             if self.red.gear > 1:
                 self.red.gear = 1
                 self.red.speed = 1
-            reward = -500
+            reward = -500  # Override the reward with a big negative.
 
         # Get actions.
         if self.red.gear > 0:
@@ -101,5 +101,4 @@ class GameState:
                 self.red.gear = self.red.gear - 1
 
         # Return the reward.
-        if reward > 0:  # So if we haven't gone off the track.
-            return current_speed
+        return reward

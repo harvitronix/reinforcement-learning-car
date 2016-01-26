@@ -75,7 +75,7 @@ class Sprite():
 
     def Update(self):
         self.speed = 0.95 * self.speed + .05 * (2.5 * self.gear)
-        print(self.gear, '\t', int(10.0 * self.speed), '\t', self.lap)
+        # print(self.gear, '\t', int(10.0 * self.speed), '\t', self.lap)
 
         theta = self.view/57.296
         vx = self.speed*math.sin(theta)
@@ -85,4 +85,4 @@ class Sprite():
         self.xc = int(self.xf)
         self.yc = int(self.yf)
 
-        return self.speed
+        return int(10.0 * self.speed)
