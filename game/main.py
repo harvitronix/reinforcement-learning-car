@@ -6,45 +6,48 @@ To shift up, press up. Down, press down.
 Turn left, press A. Turn right, press D.
 """
 
-x = 8
-y = 30
 import os
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" %(x,y)
 import pygame
-pygame.init()
 from pygame.locals import *
-import math
-import pdb
 import car
-#import movie
-#screen_size = (1200,900)
-screen_size = (1024,768)
+
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (8, 30)
+pygame.init()
+screen_size = (1024, 768)
 screen = pygame.display.set_mode(screen_size)
+
 MAX_LAPS = 10
 car.MAX_LAPS = MAX_LAPS
-screen.fill((0,192,0))
+
+screen.fill((0, 192, 0))
+
 clock = pygame.time.Clock()
+
 running = True
+
 red = car.Sprite()
-red.Load('red',360)
+red.Load('red', 360)
 car.xs = screen_size[0]/2
 car.ys = screen_size[1]/2
 track = pygame.image.load('track.png')
 visible_track = pygame.image.load('track_textured.png')
-trap = pygame.Rect(844,1324,140,200)
-trk = track.get_at((0,0))
-#track.set_colorkey(trk)
-inbox = trap.collidepoint(red.xc,red.yc)
+
+trap = pygame.Rect(844, 1324, 140, 200)
+trk = track.get_at((0, 0))
+
+inbox = trap.collidepoint(red.xc, red.yc)
 lap = 0
-#pdb.set_trace()
+
 frames = 0
 gear_lock = 24
+
 while running:
-    gear_lock = gear_lock+1
+    gear_lock = gear_lock + 1
     clock.tick(24)
     frames = frames + 1
     car.frames = frames
-    screen.fill((0,192,0))
+
+    #screen.fill((0,192,0))
     red.Update()
     if trap.collidepoint(red.xc,red.yc) == 0:
         if inbox == 1 :
