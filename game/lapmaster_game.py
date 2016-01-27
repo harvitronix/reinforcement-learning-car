@@ -29,11 +29,10 @@ class GameState:
 
     gear_lock = 0
     frames = 0
-    red = car.Sprite()
-    car.xs = screen_size[0]/2
-    car.ys = screen_size[1]/2
 
     def __init__(self):
+        red = car.Sprite()
+        self.red = red
         self.frames = 0
         self.gear_lock = 0
         self.red.Load('red', 360)
@@ -86,6 +85,7 @@ class GameState:
                 self.red.gear = 1
                 self.red.speed = 1
             reward = -500  # Override the reward with a big negative.
+            # Reset the car.
 
         # Get actions.
         if self.red.gear > 0:
@@ -97,7 +97,7 @@ class GameState:
                 if self.gear_lock > 24 and self.red.gear < 4:
                     self.red.gear += 1
                     self.gear_lock = 0
-            if input_array[3] and self.red.gear > 0:  # Gear down
+            if input_array[3] and self.red.gear > 1:  # Gear down
                 self.red.gear = self.red.gear - 1
 
         # Return the reward.

@@ -8,7 +8,7 @@ xs = 600
 ys = 450
 xt = xs - 100
 yt = ys + 100
-dt = 1.0
+dt = 1.0  # This controls how fast the car goes. Default is 1.0.
 font = pygame.font.Font(None, 24)
 msg = ["STOP", "GEAR 1", "GEAR 2", "GEAR 3", "GEAR 4"]
 n = len(msg)
@@ -57,8 +57,6 @@ class Sprite():
             if nv == 3:
                 name += '0'
             self.images += [pygame.image.load(name+str(f+1)+'.png')]
-        print("AAAA")
-        print(self.images)
 
     def Draw(self, x, y, screen):
         view = self.view + int(random.gauss(0, self.wobble))
