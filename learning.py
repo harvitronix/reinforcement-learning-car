@@ -26,9 +26,9 @@ def play():
     target_game = lapmaster_game.GameState()
     while 'bear' != 'echo':
         action = get_steer_dir() + get_shift_dir()
-        reward = target_game.frame_step(action)
-        print(reward)
-    
+        reward, readings = target_game.frame_step(action)
+        print(reward, readings)
+
         if reward < 0:
             # Start over.
             target_game = lapmaster_game.GameState()

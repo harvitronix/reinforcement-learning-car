@@ -60,6 +60,9 @@ class GameState:
                     (car.xs - self.red.xc, car.ys - self.red.yc))
         self.red.Draw(car.xs, car.ys, screen)
 
+        # Get the coordinates of the tentacles?
+        sensor_readings = self.get_sensor_readings(self.red.xc, self.red.yc)
+
         # Check if we're still on the track.
         pygame.display.flip()
         onboard = True
@@ -101,4 +104,29 @@ class GameState:
                 self.red.gear = self.red.gear - 1
 
         # Return the reward.
-        return reward
+        return reward, sensor_readings
+
+    def get_sensor_readings(self, x, y):
+        # We try to record what we see around the car. The ideal would
+        # be to have sensors just in the FRONT of the car and to the sides,
+        # but we'll start with a simple grid around the outside and
+        # see what happens.
+        #
+        # Assuming X/Y is the center of the car.
+        distance = 50
+
+        # Going from top left to top to top right to right, etc.
+        sensors = []
+        sensors.append((x - distance, y + distance))
+        sensors.append((x, y + distance))
+        sensors.append((x + distance, y + distance))
+        sensors.append((x + distance, y))
+        sensors.append((x + distance, y - distance))
+        sensors.append((x, y - distance))
+        sensors.append((x - distance, y - distance))
+        sensors.append((x - distance, y))
+        readings = []
+        for sensor in sensors:
+            readings.append(track.get_at(sensor))
+
+        return readings

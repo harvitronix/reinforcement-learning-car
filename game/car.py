@@ -82,5 +82,7 @@ class Sprite():
         self.yf = self.yf + vy*dt
         self.xc = int(self.xf)
         self.yc = int(self.yf)
+        print(self.xf, self.xc)
 
+        # Return the speed for the reward.
         return int(10.0 * self.speed)
