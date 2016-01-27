@@ -10,6 +10,8 @@ import os
 import pygame
 from pygame.locals import *
 from . import car
+import numpy as np
+
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (8, 30)
 screen_size = (1024, 768)
@@ -60,7 +62,7 @@ class GameState:
                     (car.xs - self.red.xc, car.ys - self.red.yc))
         self.red.Draw(car.xs, car.ys, screen)
 
-        # Get the coordinates of the tentacles?
+        # Get the color of the screen at 8 points all around the car.
         sensor_readings = self.get_sensor_readings(self.red.xc, self.red.yc)
 
         # Check if we're still on the track.
@@ -129,4 +131,4 @@ class GameState:
         for sensor in sensors:
             readings.append(track.get_at(sensor))
 
-        return readings
+        return np.array(readings)
