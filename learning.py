@@ -6,7 +6,7 @@ import tensorflow as tf
 ACTIONS = 4  # Left, right, gear up, gear down.
 INITIAL_EPSILON = 1.0
 GAMMA = 0.99
-OBSERVE = 50000.
+OBSERVE = 200.
 EXPLORE = 500000.
 FINAL_EPSILON = 0.1
 INITIAL_EPSILON = 1.0
