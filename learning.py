@@ -2,6 +2,7 @@ from game import lapmaster_game
 import numpy as np
 import random
 import tensorflow as tf
+import pdb
 
 ACTIONS = 4  # Left, right, gear up, gear down.
 INITIAL_EPSILON = 1.0
@@ -31,6 +32,7 @@ def train_net(s, readout, h_fc1, sess):
 
     # get the first state by doing nothing and preprocess the image to 80x80x4
     reward_0, readings = game_state.frame_step([0, 0, 0, 0])
+    print(readings)
     s_t = np.stack((readings, readings, readings, readings), axis=2)
 
     sess.run(tf.initialize_all_variables())
@@ -40,6 +42,7 @@ def train_net(s, readout, h_fc1, sess):
     while "bear" != "echo":
         # choose an action epsilon greedily
         readout_t = readout.eval(feed_dict={s: [s_t]})[0]
+        print(readout_t)
         a_t = np.zeros([ACTIONS])
         action_index = 0
         if random.random() <= epsilon or t <= OBSERVE:
