@@ -11,6 +11,8 @@ import pygame
 from pygame.locals import *
 from . import car
 import numpy as np
+import sys
+import math
 
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (8, 30)
@@ -52,18 +54,17 @@ class GameState:
 
         # Update stuff.
         self.gear_lock += 1
-        clock.tick(24)
+        clock.tick()
         self.frames += 1
         car.frames = self.frames
-        reward = self.red.Update()
+        # reward = self.red.Update()
+        # Reward is set below now (using gear instead of speed)
+        self.red.Update()
 
         # Move the car, I think.
         screen.blit(visible_track,
                     (car.xs - self.red.xc, car.ys - self.red.yc))
         self.red.Draw(car.xs, car.ys, screen)
-
-        # Get the color of the screen at 8 points all around the car.
-        sensor_readings = self.get_sensor_readings(self.red.xc, self.red.yc)
 
         # Check if we're still on the track.
         pygame.display.flip()
@@ -104,41 +105,76 @@ class GameState:
         if action == 3 and self.red.gear > 1:  # Gear down
             self.red.gear = self.red.gear - 1
 
+        # Get the color of the screen at 8 points all around the car.
+        sensor_readings = self.get_sensor_readings(
+            car.xs, car.ys, self.red.view
+        )
+
         # Add gear to sensor_readings to make a state.
         sensor_readings.append(self.red.gear)
         state = np.array([sensor_readings])
 
+        # If we're still on the track, return the gear as the reward?
+        # Will hopefully make going fast more obvious?
+        if reward == 0:
+            reward = self.red.gear
+
         # Return the reward.
         return reward, state
 
-    def get_sensor_readings(self, x, y):
-        # We try to record what we see around the car. The ideal would
-        # be to have sensors just in the FRONT of the car and to the sides,
-        # but we'll start with a simple grid around the outside and
-        # see what happens.
-        #
+    def get_sensor_readings(self, x, y, angle):
+        # Get a bunch of sensor points, draw them, return whether they
+        # are on the track or not.
+
         # Assuming X/Y is the center of the car.
         distance = 50
 
-        # Going from top left to top to top right to right, etc.
-        sensors = []
-        sensors.append((x - distance, y + distance))
-        sensors.append((x, y + distance))
-        sensors.append((x + distance, y + distance))
-        sensors.append((x + distance, y))
-        sensors.append((x + distance, y - distance))
-        sensors.append((x, y - distance))
-        sensors.append((x - distance, y - distance))
-        sensors.append((x - distance, y))
-        readings = []
-        for sensor in sensors:
-            # There are only two sensor states, so instead of returning
-            # all the parts, just return a 0 if it's on the track and
-            # a 1 if it senses off the track.
-            sensed = track.get_at(sensor)
-            if sensed[0] == 128 and sensed[1] == 128 and sensed[2] == 0:
-                readings.append(0)
-            else:
-                readings.append(1)
+        # Get the points, as if the angle is 0.
+        # We use a list because it retains order.
+        sens_points = []
+        sens_points.append((x+distance, y))
+        sens_points.append((x+distance, y+distance))
+        sens_points.append((x, y+distance))
+        sens_points.append((x-distance, y+distance))
+        sens_points.append((x-distance, y))
+        # Get double distance to see further.
+        sens_points.append((x+distance*2, y))
+        sens_points.append((x+distance*2, y+distance*2))
+        sens_points.append((x, y+distance*2))
+        sens_points.append((x-distance*2, y+distance*2))
+        sens_points.append((x-distance*2, y))
 
-        return readings
+        # Now rotate those to make it in the front of the car.
+        # And get the observations.
+        sensor_obs = []
+        for point in sens_points:
+            # Get the point location.
+            rotated_p = self.get_rotated_point(x, y, point[0], point[1], angle)
+            # Get the color there.
+            obs = screen.get_at(rotated_p)
+            sensor_obs.append(self.get_track_or_not(obs))
+            # Now that we have the color, draw so we can see.
+            pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
+        pygame.display.update()
+
+        print(sensor_obs)
+        return sensor_obs
+
+    def get_track_or_not(self, reading):
+        # Check the colors returned and conver to a 1 or a 0.
+        # We ignore reading[3] because the first 3 are enough.
+        if reading[0] == 128 and reading[1] == 128 and reading[2] == 0:
+            return 0
+        else:
+            return 1
+
+    def get_rotated_point(self, x_1, y_1, x_2, y_2, degrees):
+        radians = math.radians(degrees)
+        # Rotate x_2, y_2 around x_1, y_1 by angle.
+        x_change = (x_2 - x_1) * math.cos(radians) + \
+            (y_2 - y_1) * math.sin(radians)
+        y_change = (y_1 - y_2) * math.cos(radians) - \
+            (x_1 - x_2) * math.sin(radians)
+        new_x = x_change + x_1
+        new_y = y_change + y_1
+        return int(new_x), int(new_y)

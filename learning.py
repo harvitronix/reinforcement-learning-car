@@ -13,9 +13,10 @@ def train_net(model):
     gamma = 0.975
     epsilon = 1
     batchSize = 40
-    buffer = 80
+    buffer = 300
     replay = []  # stores tuples of (S, A, R, S')
     h = 0
+    max_car_distance = 0  # Let's keep track. Each tick is a unit.
 
     for i in range(epochs):
         game_state = lapmaster_game.GameState()
@@ -23,7 +24,11 @@ def train_net(model):
         # 8 Sensors + the current gear.
         state = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0]])  # Set initial.
 
+        car_distance = 0  # Reset.
+
         while status == 1:
+            car_distance += 1
+
             # We are in state S
             # Run our Q function on S to get Q values for all possible actions
             qval = model.predict(state, batch_size=1)
@@ -52,18 +57,18 @@ def train_net(model):
 
                 for memory in minibatch:
                     # Get max_Q(S',a).
-                    old_state, action, reward, new_state = memory
-                    old_qval = model.predict(old_state, batch_size=1)
-                    newQ = model.predict(new_state, batch_size=1)
+                    old_state_m, action_m, reward_m, new_state_m = memory
+                    old_qval = model.predict(old_state_m, batch_size=1)
+                    newQ = model.predict(new_state_m, batch_size=1)
                     maxQ = np.max(newQ)
                     y = np.zeros((1, 4))
                     y[:] = old_qval[:]
-                    if reward > 0:  # non-terminal state
-                        update = (reward + (gamma * maxQ))
+                    if reward_m > 0:  # non-terminal state
+                        update = (reward_m + (gamma * maxQ))
                     else:  # terminal state
-                        update = reward
-                    y[0][action] = update
-                    X_train.append(old_state.reshape(9,))
+                        update = reward_m
+                    y[0][action_m] = update
+                    X_train.append(old_state_m.reshape(9,))
                     y_train.append(y.reshape(4,))
 
                 X_train = np.array(X_train)
@@ -74,12 +79,18 @@ def train_net(model):
                     X_train, y_train, batch_size=batchSize,
                     nb_epoch=1, verbose=1
                 )
+
+                # Update the starting state with S'
                 state = new_state
             if reward < 0:  # if reached terminal state, update game status
                 status = 0
+                if car_distance > max_car_distance:
+                    max_car_distance = car_distance
 
         if epsilon > 0.1:  # decrement epsilon over time
             epsilon -= (1/epochs)
+
+        print("Max distance: %d" % max_car_distance)
 
 
 def neural_net():

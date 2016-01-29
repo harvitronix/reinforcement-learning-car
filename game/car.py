@@ -69,7 +69,7 @@ class Sprite():
         screen.blit(gears[self.gear], (xt, yt))
         indicated = int(10.0 * self.speed)
         screen.blit(speedo[indicated], (xt + 100, yt))
-        #screen.blit(laps[self.lap], (xt, yt + 50))
+
 
     def Update(self):
         self.speed = 0.95 * self.speed + .05 * (2.5 * self.gear)
