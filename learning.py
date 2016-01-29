@@ -22,7 +22,7 @@ def train_net(model):
         game_state = lapmaster_game.GameState()
         status = 1
         # 8 Sensors + the current gear.
-        state = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0]])  # Set initial.
+        state = np.array([range(11)])  # Set initial.
 
         car_distance = 0  # Reset.
 
@@ -68,7 +68,7 @@ def train_net(model):
                     else:  # terminal state
                         update = reward_m
                     y[0][action_m] = update
-                    X_train.append(old_state_m.reshape(9,))
+                    X_train.append(old_state_m.reshape(11,))
                     y_train.append(y.reshape(4,))
 
                 X_train = np.array(X_train)
@@ -95,7 +95,7 @@ def train_net(model):
 
 def neural_net():
     model = Sequential()
-    model.add(Dense(164, init='lecun_uniform', input_shape=(9,)))
+    model.add(Dense(164, init='lecun_uniform', input_shape=(11,)))
     model.add(Activation('relu'))
 
     model.add(Dense(150, init='lecun_uniform'))

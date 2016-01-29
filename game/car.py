@@ -70,7 +70,6 @@ class Sprite():
         indicated = int(10.0 * self.speed)
         screen.blit(speedo[indicated], (xt + 100, yt))
 
-
     def Update(self):
         self.speed = 0.95 * self.speed + .05 * (2.5 * self.gear)
         # print(self.gear, '\t', int(10.0 * self.speed), '\t', self.lap)

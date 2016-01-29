@@ -126,8 +126,8 @@ class GameState:
         # Get a bunch of sensor points, draw them, return whether they
         # are on the track or not.
 
-        # Assuming X/Y is the center of the car.
-        distance = 50
+        # Set a default distance.
+        distance = 35
 
         # Get the points, as if the angle is 0.
         # We use a list because it retains order.
@@ -155,7 +155,7 @@ class GameState:
             sensor_obs.append(self.get_track_or_not(obs))
             # Now that we have the color, draw so we can see.
             pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        pygame.display.update()
+        # pygame.display.update()
 
         return sensor_obs
 
