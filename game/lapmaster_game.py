@@ -157,7 +157,6 @@ class GameState:
             pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
         pygame.display.update()
 
-        print(sensor_obs)
         return sensor_obs
 
     def get_track_or_not(self, reading):
