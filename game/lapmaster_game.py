@@ -39,9 +39,9 @@ class GameState:
         self.gear_lock = 0
         self.red.Load('red', 360)
 
-    def frame_step(self, input_array):
+    def frame_step(self, action):
         """
-        input_array is boolean array at:
+        action is an int between 0 and 3:
         0: turn left
         1: turn right
         2: gear up
@@ -93,20 +93,23 @@ class GameState:
             # Reset the car.
 
         # Get actions.
-        if self.red.gear > 0:
-            if input_array[1]:  # Turn right.
-                self.red.view = (self.red.view + 2) % 360
-            if input_array[0]:  # Turn left.
-                self.red.view = (self.red.view + 358) % 360
-            if input_array[2]:  # Gear up
-                if self.gear_lock > 24 and self.red.gear < 4:
-                    self.red.gear += 1
-                    self.gear_lock = 0
-            if input_array[3] and self.red.gear > 1:  # Gear down
-                self.red.gear = self.red.gear - 1
+        if action == 1:  # Turn right.
+            self.red.view = (self.red.view + 2) % 360
+        if action == 0:  # Turn left.
+            self.red.view = (self.red.view + 358) % 360
+        if action == 2:  # Gear up
+            if self.gear_lock > 24 and self.red.gear < 4:
+                self.red.gear += 1
+                self.gear_lock = 0
+        if action == 3 and self.red.gear > 1:  # Gear down
+            self.red.gear = self.red.gear - 1
+
+        # Add gear to sensor_readings to make a state.
+        sensor_readings.append(self.red.gear)
+        state = np.array([sensor_readings])
 
         # Return the reward.
-        return reward, sensor_readings
+        return reward, state
 
     def get_sensor_readings(self, x, y):
         # We try to record what we see around the car. The ideal would
@@ -129,6 +132,13 @@ class GameState:
         sensors.append((x - distance, y))
         readings = []
         for sensor in sensors:
-            readings.append(track.get_at(sensor))
+            # There are only two sensor states, so instead of returning
+            # all the parts, just return a 0 if it's on the track and
+            # a 1 if it senses off the track.
+            sensed = track.get_at(sensor)
+            if sensed[0] == 128 and sensed[1] == 128 and sensed[2] == 0:
+                readings.append(0)
+            else:
+                readings.append(1)
 
-        return np.array(readings)
+        return readings
