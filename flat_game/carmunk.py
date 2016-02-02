@@ -44,10 +44,18 @@ class GameState:
 
         # Create walls.
         static = [
-            pymunk.Segment(self.space.static_body, (25, 25), (25, height-25), 2),
-            pymunk.Segment(self.space.static_body, (25, height-25), (width-25, height-25), 2),
-            pymunk.Segment(self.space.static_body, (width-25, height-25), (width-25, 25), 2),
-            pymunk.Segment(self.space.static_body, (25, 25), (width-25, 25), 2)
+            pymunk.Segment(
+                self.space.static_body,
+                (25, 25), (25, height-25), 2),
+            pymunk.Segment(
+                self.space.static_body,
+                (25, height-25), (width-25, height-25), 2),
+            pymunk.Segment(
+                self.space.static_body,
+                (width-25, height-25), (width-25, 25), 2),
+            pymunk.Segment(
+                self.space.static_body,
+                (25, 25), (width-25, 25), 2)
         ]
 
         for s in static:
