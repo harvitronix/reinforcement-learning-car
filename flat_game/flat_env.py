@@ -1,6 +1,9 @@
 import pygame
 from flat_car import FlatCar
 
+pygame.init()
+pygame.mixer.init()
+
 screen_size = (1024, 768)
 screen = pygame.display.set_mode(screen_size)
 screen.fill((0, 0, 0))
@@ -11,7 +14,7 @@ clock = pygame.time.Clock()
 class GameState:
     def __init__(self):
         self.car = FlatCar(screen, (0, 0), 180)
-        self.gear_speed = 0        
+        self.gear_speed = 0
 
     def frame_step(self, action):
 

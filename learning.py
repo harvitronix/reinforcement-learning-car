@@ -9,46 +9,51 @@ from keras.optimizers import RMSprop
 
 def train_net(model):
 
+    observe = 5000
     epochs = 3000
     gamma = 0.975
     epsilon = 1
     batchSize = 40
-    buffer = 300
+    buffer = 100000
     replay = []  # stores tuples of (S, A, R, S')
-    h = 0
     max_car_distance = 0  # Let's keep track. Each tick is a unit.
+    t = 0
 
     for i in range(epochs):
         game_state = lapmaster_game.GameState()
         status = 1
-        # 8 Sensors + the current gear.
-        state = np.array([range(11)])  # Set initial.
+        # 10 Sensors + the current gear.
+        # state = np.array([range(11)])  # Set initial.
+        # Get initial state by doing nothing and getting the state.
+        _, state = game_state.frame_step((0, 0, 0, 0))
 
         car_distance = 0  # Reset.
 
         while status == 1:
+            t += 1
             car_distance += 1
 
             # We are in state S
             # Run our Q function on S to get Q values for all possible actions
             qval = model.predict(state, batch_size=1)
-            if (random.random() < epsilon):  # choose random action
-                action = np.random.randint(0, 4)
-            else:  # choose best action from Q(s,a) values
-                action = (np.argmax(qval))
+            # Choose an action.
+            if random.random() < epsilon or t < observe:
+                action = np.random.randint(0, 4)  # random
+            else:
+                action = (np.argmax(qval))  # best
 
             # Take action, observe new state S'
             reward, new_state = game_state.frame_step(action)
 
             # Experience replay storage
-            if (len(replay) < buffer):  # if buffer not filled, add to it
-                replay.append((state, action, reward, new_state))
-            else:  # if buffer full, overwrite old values
-                if (h < (buffer - 1)):
-                    h += 1
-                else:
-                    h = 0
-                replay[h] = (state, action, reward, new_state)
+            replay.append((state, action, reward, new_state))
+
+            # If we're done observing, start training.
+            if t > observe:
+
+                # If we've stored enough in our buffer, pop the oldest.
+                if len(replay) > buffer:
+                    replay.pop(0)
 
                 # Randomly sample our experience replay memory
                 minibatch = random.sample(replay, batchSize)
@@ -80,17 +85,19 @@ def train_net(model):
                     nb_epoch=1, verbose=1
                 )
 
-                # Update the starting state with S'
-                state = new_state
+            # Update the starting state with S'
+            state = new_state
+
             if reward < 0:  # if reached terminal state, update game status
                 status = 0
                 if car_distance > max_car_distance:
                     max_car_distance = car_distance
 
-        if epsilon > 0.1:  # decrement epsilon over time
+        # decrement epsilon over time
+        if epsilon > 0.1 and t > observe:
             epsilon -= (1/epochs)
 
-        print("Max distance: %d" % max_car_distance)
+        print("Max distance: %d at %d" % (max_car_distance, t))
 
 
 def neural_net():

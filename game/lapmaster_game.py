@@ -114,10 +114,10 @@ class GameState:
         sensor_readings.append(self.red.gear)
         state = np.array([sensor_readings])
 
-        # If we're still on the track, return the gear as the reward?
-        # Will hopefully make going fast more obvious?
+        # If we're still on the track, return the square of the gear as
+        # the reward? Will hopefully make going fast more obvious?
         if reward == 0:
-            reward = self.red.gear
+            reward = self.red.gear ** self.red.gear
 
         # Return the reward.
         return reward, state

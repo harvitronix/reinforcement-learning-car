@@ -1,13 +1,10 @@
 """
-The attempts to take the original car class and make it much simpler.
+This attempts to take the original car class and make it much simpler.
 No sprites, refactor the code.
 """
 
 import pygame
 import math
-
-pygame.init()
-pygame.mixer.init()
 
 
 class FlatCar():
