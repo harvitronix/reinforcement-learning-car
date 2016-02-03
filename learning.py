@@ -25,7 +25,7 @@ def train_net(model):
         # 10 Sensors + the current gear.
         # state = np.array([range(11)])  # Set initial.
         # Get initial state by doing nothing and getting the state.
-        _, state = game_state.frame_step((0, 0, 0, 0))
+        _, state = game_state.frame_step((2))
 
         car_distance = 0  # Reset.
 
@@ -38,9 +38,11 @@ def train_net(model):
             qval = model.predict(state, batch_size=1)
             # Choose an action.
             if random.random() < epsilon or t < observe:
-                action = np.random.randint(0, 4)  # random
+                action = np.random.randint(0, 2)  # random
             else:
                 action = (np.argmax(qval))  # best
+
+            print(action)
 
             # Take action, observe new state S'
             reward, new_state = game_state.frame_step(action)
@@ -66,15 +68,15 @@ def train_net(model):
                     old_qval = model.predict(old_state_m, batch_size=1)
                     newQ = model.predict(new_state_m, batch_size=1)
                     maxQ = np.max(newQ)
-                    y = np.zeros((1, 4))
+                    y = np.zeros((0, 2))
                     y[:] = old_qval[:]
                     if reward_m > 0:  # non-terminal state
                         update = (reward_m + (gamma * maxQ))
                     else:  # terminal state
                         update = reward_m
                     y[0][action_m] = update
-                    X_train.append(old_state_m.reshape(11,))
-                    y_train.append(y.reshape(4,))
+                    X_train.append(old_state_m.reshape(10,))
+                    y_train.append(y.reshape(3,))
 
                 X_train = np.array(X_train)
                 y_train = np.array(y_train)
@@ -102,13 +104,13 @@ def train_net(model):
 
 def neural_net():
     model = Sequential()
-    model.add(Dense(164, init='lecun_uniform', input_shape=(11,)))
+    model.add(Dense(164, init='lecun_uniform', input_shape=(10,)))
     model.add(Activation('relu'))
 
     model.add(Dense(150, init='lecun_uniform'))
     model.add(Activation('relu'))
 
-    model.add(Dense(4, init='lecun_uniform'))
+    model.add(Dense(3, init='lecun_uniform'))
     # linear output so we can have range of real-valued outputs
     model.add(Activation('linear'))
 

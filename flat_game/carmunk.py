@@ -1,4 +1,5 @@
-import random, math
+import random
+import math
 
 import pygame
 from pygame.locals import *
@@ -138,7 +139,7 @@ class GameState:
                 sensor_obs.append(self.get_track_or_not(obs))
             # Now that we have the color, draw so we can see.
             # pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        #pygame.display.update()
+        # pygame.display.update()
 
         return sensor_obs
 
