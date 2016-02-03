@@ -1,4 +1,4 @@
-import sys, random
+import random, math
 
 import pygame
 from pygame.locals import *
@@ -8,15 +8,13 @@ import pymunk
 from pymunk.vec2d import Vec2d
 from pymunk.pygame_util import draw
 
-width = 800
-height = 600
-
 # PyGame init
+width = 1000
+height = 700
 pygame.init()
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 running = True
-font = pygame.font.SysFont("Arial", 16)
 
 
 class GameState:
@@ -46,31 +44,31 @@ class GameState:
         static = [
             pymunk.Segment(
                 self.space.static_body,
-                (25, 25), (25, height-25), 2),
+                (25, 25), (25, height-25), 25),
             pymunk.Segment(
                 self.space.static_body,
-                (25, height-25), (width-25, height-25), 2),
+                (25, height-25), (width-25, height-25), 25),
             pymunk.Segment(
                 self.space.static_body,
-                (width-25, height-25), (width-25, 25), 2),
+                (width-25, height-25), (width-25, 25), 25),
             pymunk.Segment(
                 self.space.static_body,
-                (25, 25), (width-25, 25), 2)
+                (25, 25), (width-25, 25), 25)
         ]
-
         for s in static:
             s.friction = 1.
             s.group = 1
             s.collision_type = 1
+            s.color = THECOLORS['blue']
         self.space.add(static)
 
-        # Create a rect in the middle to go around.
+        # Create a circle in the middle to go around.
         box_body = pymunk.Body(pymunk.inf, pymunk.inf)
-        box_shape = pymunk.Poly.create_box(box_body, (300, 200))
+        box_shape = pymunk.Circle(box_body, 100)
         box_shape.collision_type = 1
         box_shape.elasticity = 1.0
-        box_body.position = 400, 300
-        box_shape.color = THECOLORS["white"]
+        box_body.position = 450, 350
+        box_shape.color = THECOLORS["blue"]
         self.space.add(box_body, box_shape)
 
     def car_crashed(self, space, arbiter):
@@ -80,28 +78,92 @@ class GameState:
 
     def frame_step(self, action):
         if action == 0:  # Turn left.
-            self.car_body.angle -= .1
+            self.car_body.angle -= .2
         elif action == 1:  # Turn right.
-            self.car_body.angle += .1
+            self.car_body.angle += .2
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
         self.car_body.velocity = 100 * driving_direction
 
+        x, y = self.car_body.position
+        readings = self.get_sensor_readings(x, y, self.car_body.angle)
+
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
-        self.space.step(1./60)
+        self.space.step(1./10)
         pygame.display.flip()
         clock.tick()
 
         if self.crashed:
-            return -500
+            reward = -500
         else:
-            return 1
+            reward = 1
 
+        return reward, readings
+
+    def get_sensor_readings(self, x, y, angle):
+        # Get a bunch of sensor points, draw them, return whether they
+        # are on the track or not.
+
+        # Set a default distance.
+        distance = 45
+
+        # Get the points, as if the angle is 0.
+        # We use a list because it retains order.
+        sens_points = []
+        sens_points.append((x+distance, y))
+        sens_points.append((x+distance, y+distance))
+        sens_points.append((x, y+distance))
+        sens_points.append((x-distance, y+distance))
+        sens_points.append((x-distance, y))
+        # Get double distance to see further.
+        sens_points.append((x+distance*2, y))
+        sens_points.append((x+distance*2, y+distance*2))
+        sens_points.append((x, y+distance*2))
+        sens_points.append((x-distance*2, y+distance*2))
+        sens_points.append((x-distance*2, y))
+
+        # Now rotate those to make it in the front of the car.
+        # And get the observations.
+        sensor_obs = []
+        for point in sens_points:
+            # Get the point location.
+            rotated_p = self.get_rotated_point(x, y, point[0], point[1], angle)
+            # Get the color there.
+            if rotated_p[0] <= 0 or rotated_p[1] <= 0 \
+                    or rotated_p[0] >= width or rotated_p[1] >= height:
+                sensor_obs.append(1)  # Off the screen.
+            else:
+                obs = screen.get_at(rotated_p)
+                sensor_obs.append(self.get_track_or_not(obs))
+            # Now that we have the color, draw so we can see.
+            # pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
+        #pygame.display.update()
+
+        return sensor_obs
+
+    def get_rotated_point(self, x_1, y_1, x_2, y_2, radians):
+        radians += 1.5  # I have no idea why I have to do this.
+        # Rotate x_2, y_2 around x_1, y_1 by angle.
+        x_change = (x_2 - x_1) * math.cos(radians) + \
+            (y_2 - y_1) * math.sin(radians)
+        y_change = (y_1 - y_2) * math.cos(radians) - \
+            (x_1 - x_2) * math.sin(radians)
+        new_x = x_change + x_1
+        new_y = height - (y_change + y_1)
+        return int(new_x), int(new_y)
+
+    def get_track_or_not(self, reading):
+        # Check the colors returned and conver to a 1 or a 0.
+        # Reading[2] is 255 when it's blue.
+        if reading[2] == 255:
+            return 1
+        else:
+            return 0
 
 if __name__ == '__main__':
     game_state = GameState()
     while 'bear' != 'eacho':
-        reward = game_state.frame_step(random.randint(0, 3))
+        reward, readings = game_state.frame_step(random.randint(0, 3))
         if reward < 0:
             game_state = GameState()
