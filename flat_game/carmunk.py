@@ -89,7 +89,8 @@ class GameState:
 
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
-        state = np.array([readings])
+        # state = np.array([readings])
+        state = readings
 
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)

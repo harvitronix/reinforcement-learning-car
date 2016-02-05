@@ -2,6 +2,9 @@ from flat_game import carmunk
 import numpy as np
 import random
 import csv
+from collections import deque
+import matplotlib.pyplot as plt
+import time
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation
@@ -13,7 +16,7 @@ NUM_SENSORS = 30
 def train_net(model):
 
     observe = 1000
-    epochs = 1000
+    epochs = 5000
     gamma = 0.975
     epsilon = 1
     batchSize = 40
@@ -23,11 +26,25 @@ def train_net(model):
     t = 0
     data_collect = []
 
+    # For plotting.
+    #plt.axis([0, epochs, 30, 300])
+    #plt.ion()
+    #plt.show()
+
     for i in range(epochs):
+        # Create an empty sensor buffer that will use four frames.
+        empty_sensors = [0]*NUM_SENSORS
+        state = deque([empty_sensors, empty_sensors,
+                      empty_sensors, empty_sensors])
+        new_state = state
+
+        # Get the game.
         game_state = carmunk.GameState()
         status = 1
+
         # Get initial state by doing nothing and getting the state.
-        _, state = game_state.frame_step((2))
+        _, sensors = game_state.frame_step((2))
+        state = get_buffered_state(state, sensors)
 
         car_distance = 0  # Reset.
 
@@ -37,7 +54,9 @@ def train_net(model):
 
             # We are in state S
             # Run our Q function on S to get Q values for all possible actions
-            qval = model.predict(state, batch_size=1)
+            qval = model.predict(np.array([get_flat_state(state)]),
+                                 batch_size=1)
+
             # Choose an action.
             if random.random() < epsilon or t < observe:
                 action = np.random.randint(0, 3)  # random
@@ -45,7 +64,8 @@ def train_net(model):
                 action = (np.argmax(qval))  # best
 
             # Take action, observe new state S'
-            reward, new_state = game_state.frame_step(action)
+            reward, new_sensors = game_state.frame_step(action)
+            new_state = get_buffered_state(new_state, new_sensors)
 
             # Experience replay storage
             replay.append((state, action, reward, new_state))
@@ -65,8 +85,8 @@ def train_net(model):
                 for memory in minibatch:
                     # Get max_Q(S',a).
                     old_state_m, action_m, reward_m, new_state_m = memory
-                    old_qval = model.predict(old_state_m, batch_size=1)
-                    newQ = model.predict(new_state_m, batch_size=1)
+                    old_qval = model.predict(np.array([get_flat_state(old_state_m)]), batch_size=1)
+                    newQ = model.predict(np.array([get_flat_state(new_state_m)]), batch_size=1)
                     maxQ = np.max(newQ)
                     y = np.zeros((1, 3))
                     y[:] = old_qval[:]
@@ -75,7 +95,7 @@ def train_net(model):
                     else:  # terminal state
                         update = reward_m
                     y[0][action_m] = update
-                    X_train.append(old_state_m.reshape(NUM_SENSORS,))
+                    X_train.append(np.array([get_flat_state(old_state_m)]).reshape(NUM_SENSORS*4,))
                     y_train.append(y.reshape(3,))
 
                 X_train = np.array(X_train)
@@ -103,14 +123,31 @@ def train_net(model):
         print("Max distance: %d at %d\tgame %d\tepsilon %f" %
               (max_car_distance, t, i, epsilon))
 
+        # Plot it.
+        #plt.scatter(i, car_distance)
+        #plt.draw()
+
     data_dump = open('learn_data.csv', 'w')
     wr = csv.writer(data_dump)
     wr.writerows(data_collect)
 
 
+def get_buffered_state(state, sensors):
+    """Use a queue to store four frames."""
+    state.append(sensors)
+    if len(state) > 4:
+        state.popleft()
+    return state
+
+
+def get_flat_state(state):
+    flat = [item for sublist in state for item in sublist]
+    return flat
+
+
 def neural_net():
     model = Sequential()
-    model.add(Dense(164, init='lecun_uniform', input_shape=(NUM_SENSORS,)))
+    model.add(Dense(164, init='lecun_uniform', input_shape=(NUM_SENSORS*4,)))
     model.add(Activation('relu'))
 
     model.add(Dense(150, init='lecun_uniform'))
