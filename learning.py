@@ -1,29 +1,31 @@
-from game import lapmaster_game
+from flat_game import carmunk
 import numpy as np
 import random
+import csv
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation
 from keras.optimizers import RMSprop
 
+NUM_SENSORS = 30
+
 
 def train_net(model):
 
-    observe = 5000
-    epochs = 3000
+    observe = 1000
+    epochs = 1000
     gamma = 0.975
     epsilon = 1
     batchSize = 40
-    buffer = 100000
+    buffer = 50000
     replay = []  # stores tuples of (S, A, R, S')
     max_car_distance = 0  # Let's keep track. Each tick is a unit.
     t = 0
+    data_collect = []
 
     for i in range(epochs):
-        game_state = lapmaster_game.GameState()
+        game_state = carmunk.GameState()
         status = 1
-        # 10 Sensors + the current gear.
-        # state = np.array([range(11)])  # Set initial.
         # Get initial state by doing nothing and getting the state.
         _, state = game_state.frame_step((2))
 
@@ -38,11 +40,9 @@ def train_net(model):
             qval = model.predict(state, batch_size=1)
             # Choose an action.
             if random.random() < epsilon or t < observe:
-                action = np.random.randint(0, 2)  # random
+                action = np.random.randint(0, 3)  # random
             else:
                 action = (np.argmax(qval))  # best
-
-            print(action)
 
             # Take action, observe new state S'
             reward, new_state = game_state.frame_step(action)
@@ -68,23 +68,22 @@ def train_net(model):
                     old_qval = model.predict(old_state_m, batch_size=1)
                     newQ = model.predict(new_state_m, batch_size=1)
                     maxQ = np.max(newQ)
-                    y = np.zeros((0, 2))
+                    y = np.zeros((1, 3))
                     y[:] = old_qval[:]
                     if reward_m > 0:  # non-terminal state
                         update = (reward_m + (gamma * maxQ))
                     else:  # terminal state
                         update = reward_m
                     y[0][action_m] = update
-                    X_train.append(old_state_m.reshape(10,))
+                    X_train.append(old_state_m.reshape(NUM_SENSORS,))
                     y_train.append(y.reshape(3,))
 
                 X_train = np.array(X_train)
                 y_train = np.array(y_train)
-                print("Game #: %s" % (i,))
 
                 model.fit(
                     X_train, y_train, batch_size=batchSize,
-                    nb_epoch=1, verbose=1
+                    nb_epoch=1, verbose=0
                 )
 
             # Update the starting state with S'
@@ -99,12 +98,19 @@ def train_net(model):
         if epsilon > 0.1 and t > observe:
             epsilon -= (1/epochs)
 
-        print("Max distance: %d at %d" % (max_car_distance, t))
+        # Log the car's distance at this T
+        data_collect.append([t, car_distance])
+        print("Max distance: %d at %d\tgame %d\tepsilon %f" %
+              (max_car_distance, t, i, epsilon))
+
+    data_dump = open('learn_data.csv', 'w')
+    wr = csv.writer(data_dump)
+    wr.writerows(data_collect)
 
 
 def neural_net():
     model = Sequential()
-    model.add(Dense(164, init='lecun_uniform', input_shape=(10,)))
+    model.add(Dense(164, init='lecun_uniform', input_shape=(NUM_SENSORS,)))
     model.add(Activation('relu'))
 
     model.add(Dense(150, init='lecun_uniform'))

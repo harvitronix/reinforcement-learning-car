@@ -1,5 +1,6 @@
 import random
 import math
+import numpy as np
 
 import pygame
 from pygame.locals import *
@@ -88,6 +89,7 @@ class GameState:
 
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
+        state = np.array([readings])
 
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
@@ -100,7 +102,7 @@ class GameState:
         else:
             reward = 1
 
-        return reward, readings
+        return reward, state
 
     def get_sensor_readings(self, x, y, angle):
         # Get a bunch of sensor points, draw them, return whether they
@@ -112,17 +114,12 @@ class GameState:
         # Get the points, as if the angle is 0.
         # We use a list because it retains order.
         sens_points = []
-        sens_points.append((x+distance, y))
-        sens_points.append((x+distance, y+distance))
-        sens_points.append((x, y+distance))
-        sens_points.append((x-distance, y+distance))
-        sens_points.append((x-distance, y))
-        # Get double distance to see further.
-        sens_points.append((x+distance*2, y))
-        sens_points.append((x+distance*2, y+distance*2))
-        sens_points.append((x, y+distance*2))
-        sens_points.append((x-distance*2, y+distance*2))
-        sens_points.append((x-distance*2, y))
+        for i in ([1, 1.5, 2, 2.5, 3, 3.5]):
+            sens_points.append((x+(distance*i), y))
+            sens_points.append((x+(distance*i), y+(distance*i)))
+            sens_points.append((x, y+(distance*i)))
+            sens_points.append((x-(distance*i), y+(distance*i)))
+            sens_points.append((x-(distance*i), y))
 
         # Now rotate those to make it in the front of the car.
         # And get the observations.
