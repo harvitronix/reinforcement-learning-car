@@ -70,7 +70,7 @@ class GameState:
         box_shape.collision_type = 1
         box_shape.elasticity = 1.0
         box_body.position = 450, 350
-        box_shape.color = THECOLORS["blue"]
+        box_shape.color = THECOLORS["green"]
         self.space.add(box_body, box_shape)
 
     def car_crashed(self, space, arbiter):
@@ -89,8 +89,7 @@ class GameState:
 
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
-        # state = np.array([readings])
-        state = readings
+        state = np.array([readings])
 
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
@@ -101,9 +100,15 @@ class GameState:
         if self.crashed:
             reward = -500
         else:
-            reward = 1
+            reward = 30 - self.sum_readings(readings)
 
         return reward, state
+
+    def sum_readings(self, readings):
+        tot = 0
+        for i in readings:
+            tot += i
+        return tot
 
     def get_sensor_readings(self, x, y, angle):
         # Get a bunch of sensor points, draw them, return whether they
@@ -118,7 +123,7 @@ class GameState:
         for i in ([1, 1.5, 2, 2.5, 3, 3.5]):
             sens_points.append((x+(distance*i), y))
             sens_points.append((x+(distance*i), y+(distance*i)))
-            sens_points.append((x, y+(distance*i)))
+            sens_points.append((x, y+(distance*(i*1.3))))
             sens_points.append((x-(distance*i), y+(distance*i)))
             sens_points.append((x-(distance*i), y))
 
@@ -155,8 +160,11 @@ class GameState:
     def get_track_or_not(self, reading):
         # Check the colors returned and conver to a 1 or a 0.
         # Reading[2] is 255 when it's blue.
-        if reading[2] == 255:
+        # Reading[1] is 255 when it's green.
+        if reading[1] == 255:
             return 1
+        elif reading[2] == 255:
+            return 2
         else:
             return 0
 

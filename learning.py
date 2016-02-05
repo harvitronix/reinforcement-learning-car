@@ -4,7 +4,7 @@ import random
 import csv
 
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation
+from keras.layers.core import Dense, Activation, Dropout
 from keras.optimizers import RMSprop
 
 NUM_SENSORS = 30
@@ -112,9 +112,11 @@ def neural_net():
     model = Sequential()
     model.add(Dense(164, init='lecun_uniform', input_shape=(NUM_SENSORS,)))
     model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
 
     model.add(Dense(150, init='lecun_uniform'))
     model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
 
     model.add(Dense(3, init='lecun_uniform'))
     # linear output so we can have range of real-valued outputs
