@@ -21,6 +21,7 @@ speed_multiplier = 0.02
 # Showing sensors slows things down.
 show_sensors = False
 
+
 class GameState:
     def __init__(self):
         # Global-ish.
