@@ -17,6 +17,7 @@ pygame.init()
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 running = True
+speed_multiplier = 0.02
 
 
 class GameState:
@@ -24,7 +25,7 @@ class GameState:
         # Global-ish.
         self.crashed = False
 
-        # Physics stuff
+        # Physics stuff.
         self.space = pymunk.Space()
         self.space.gravity = pymunk.Vec2d(0., 0.)
         self.space.add_collision_handler(1, 1, post_solve=self.car_crashed)
@@ -42,20 +43,23 @@ class GameState:
         self.car_body.apply_impulse(driving_direction)
         self.space.add(self.car_body, self.car_shape)
 
+        # To increase speed.
+        self.num_steps = 0
+
         # Create walls.
         static = [
             pymunk.Segment(
                 self.space.static_body,
-                (25, 25), (25, height-25), 25),
+                (0, 1), (0, height), 1),
             pymunk.Segment(
                 self.space.static_body,
-                (25, height-25), (width-25, height-25), 25),
+                (1, height), (width, height), 1),
             pymunk.Segment(
                 self.space.static_body,
-                (width-25, height-25), (width-25, 25), 25),
+                (width-1, height), (width-1, 1), 1),
             pymunk.Segment(
                 self.space.static_body,
-                (25, 25), (width-25, 25), 25)
+                (1, 1), (width, 1), 1)
         ]
         for s in static:
             s.friction = 1.
@@ -65,13 +69,19 @@ class GameState:
         self.space.add(static)
 
         # Create a circle in the middle to go around.
-        box_body = pymunk.Body(pymunk.inf, pymunk.inf)
-        box_shape = pymunk.Circle(box_body, 100)
-        box_shape.collision_type = 1
-        box_shape.elasticity = 1.0
-        box_body.position = 450, 350
-        box_shape.color = THECOLORS["green"]
-        self.space.add(box_body, box_shape)
+        self.create_obstacle(450, 350, 100)
+
+        # Create a smaller one.
+        # self.create_obstacle(750, 250, 50)
+
+    def create_obstacle(self, x, y, r):
+        c_body = pymunk.Body(pymunk.inf, pymunk.inf)
+        c_shape = pymunk.Circle(c_body, r)
+        c_shape.collision_type = 1
+        c_shape.elasticity = 1.0
+        c_body.position = x, y
+        c_shape.color = THECOLORS["red"]
+        self.space.add(c_body, c_shape)
 
     def car_crashed(self, space, arbiter):
         if arbiter.is_first_contact:
@@ -85,7 +95,10 @@ class GameState:
             self.car_body.angle += .2
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
-        self.car_body.velocity = 100 * driving_direction
+        # self.car_body.velocity = 100 * driving_direction
+        # Make it get faster over time.
+        self.car_body.velocity = (100 + self.num_steps * speed_multiplier) \
+            * driving_direction
 
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
@@ -102,6 +115,8 @@ class GameState:
         else:
             reward = 30 - self.sum_readings(readings)
 
+        self.num_steps += 1
+
         return reward, state
 
     def sum_readings(self, readings):
@@ -115,17 +130,26 @@ class GameState:
         # are on the track or not.
 
         # Set a default distance.
-        distance = 45
+        distance = 40
 
         # Get the points, as if the angle is 0.
         # We use a list because it retains order.
         sens_points = []
+        """
+        # Fan out the points.
         for i in ([1, 1.5, 2, 2.5, 3, 3.5]):
             sens_points.append((x+(distance*i), y))
             sens_points.append((x+(distance*i), y+(distance*i)))
             sens_points.append((x, y+(distance*(i*1.3))))
             sens_points.append((x-(distance*i), y+(distance*i)))
             sens_points.append((x-(distance*i), y))
+        """
+        # Let's try making it a big grid.
+        for i in ([0, 1, 2, 3, 4]):
+            for j in ([-4, 4, -3, 3, -2, 2, -1, 1, 0]):
+                if i == 0 and j == 0:
+                    continue  # Skip the dot on top of the car.
+                sens_points.append((x+(distance*j), y+(i*distance)))
 
         # Now rotate those to make it in the front of the car.
         # And get the observations.
@@ -136,13 +160,13 @@ class GameState:
             # Get the color there.
             if rotated_p[0] <= 0 or rotated_p[1] <= 0 \
                     or rotated_p[0] >= width or rotated_p[1] >= height:
-                sensor_obs.append(1)  # Off the screen.
+                sensor_obs.append(2)  # Sensor is off the screen.
             else:
                 obs = screen.get_at(rotated_p)
                 sensor_obs.append(self.get_track_or_not(obs))
             # Now that we have the color, draw so we can see.
-            # pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        # pygame.display.update()
+            pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
+        pygame.display.update()
 
         return sensor_obs
 
@@ -159,12 +183,13 @@ class GameState:
 
     def get_track_or_not(self, reading):
         # Check the colors returned and conver to a 1 or a 0.
+        # Reading[0] is 255 when it's red.
         # Reading[2] is 255 when it's blue.
         # Reading[1] is 255 when it's green.
-        if reading[1] == 255:
-            return 1
+        if reading[0] == 255:
+            return 1  # Sensor is on a ball.
         elif reading[2] == 255:
-            return 2
+            return 2  # Sensor is on a wall.
         else:
             return 0
 

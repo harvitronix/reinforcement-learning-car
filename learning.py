@@ -2,19 +2,16 @@ from flat_game import carmunk
 import numpy as np
 import random
 import csv
+from nn import neural_net
 
-from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Dropout
-from keras.optimizers import RMSprop
-
-NUM_SENSORS = 30
+NUM_SENSORS = 44
 
 
 def train_net(model):
 
     observe = 1000
     epochs = 1000
-    gamma = 0.975
+    gamma = 0.9
     epsilon = 1
     batchSize = 40
     buffer = 50000
@@ -89,10 +86,14 @@ def train_net(model):
             # Update the starting state with S'
             state = new_state
 
-            if reward < 0:  # if reached terminal state, update game status
+            if reward == -500:  # if reached terminal state, update game status
                 status = 0
                 if car_distance > max_car_distance:
                     max_car_distance = car_distance
+
+                    # Save the model.
+                    model.save_weights('saved-models/model-weights-'
+                                       + str(car_distance) + '.h5')
 
         # decrement epsilon over time
         if epsilon > 0.1 and t > observe:
@@ -100,33 +101,15 @@ def train_net(model):
 
         # Log the car's distance at this T
         data_collect.append([t, car_distance])
-        print("Max distance: %d at %d\tgame %d\tepsilon %f" %
-              (max_car_distance, t, i, epsilon))
+        print("Max: %d at %d\tgame %d\tepsilon %f\t(%d)" %
+              (max_car_distance, t, i, epsilon, car_distance))
 
-    data_dump = open('learn_data.csv', 'w')
+    rand_filename = random.randint(1, 1000)
+    data_dump = open('results/learn_data-' + str(rand_filename) + '.csv', 'w')
     wr = csv.writer(data_dump)
     wr.writerows(data_collect)
 
 
-def neural_net():
-    model = Sequential()
-    model.add(Dense(164, init='lecun_uniform', input_shape=(NUM_SENSORS,)))
-    model.add(Activation('relu'))
-    # model.add(Dropout(0.2))
-
-    model.add(Dense(150, init='lecun_uniform'))
-    model.add(Activation('relu'))
-    # model.add(Dropout(0.2))
-
-    model.add(Dense(3, init='lecun_uniform'))
-    # linear output so we can have range of real-valued outputs
-    model.add(Activation('linear'))
-
-    rms = RMSprop()
-    model.compile(loss='mse', optimizer=rms)
-
-    return model
-
 if __name__ == "__main__":
-    model = neural_net()
+    model = neural_net(NUM_SENSORS)
     train_net(model)
