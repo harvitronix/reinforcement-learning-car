@@ -92,11 +92,14 @@ def train_net(model):
               (max_car_distance, t, i, epsilon, car_distance))
 
     # Save the results to a file so we can graph it later.
-    rand_filename = random.randint(1, 1000)
-    data_dump = open('results/learn_data-' + str(rand_filename) + '.csv', 'w')
+    data_dump = open('results/learn_data-' + str(t) + '.csv', 'w')
     wr = csv.writer(data_dump)
     wr.writerows(data_collect)
 
+    # Save a last version of the model.
+    model.save_weights('saved-models/model-weights-'
+                       + str(t) + '.h5',
+                       overwrite=True)
 
 def process_minibatch(minibatch):
     """This does the heavy lifting, aka, the training. It's super jacked"""

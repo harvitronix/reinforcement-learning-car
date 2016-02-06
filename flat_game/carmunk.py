@@ -135,6 +135,7 @@ class GameState:
         # Set the reward.
         if self.crashed:
             reward = -500
+            screen.fill(THECOLORS["red"])  # Try to flash the screen for fun.
         else:
             reward = 30 - self.sum_readings(readings)
 
@@ -177,8 +178,8 @@ class GameState:
                 obs = screen.get_at(rotated_p)
                 sensor_obs.append(self.get_track_or_not(obs))
             # Now that we have the color, draw so we can see.
-            # pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        # pygame.display.update()
+            pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
+        pygame.display.update()
 
         return sensor_obs
 
