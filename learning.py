@@ -101,6 +101,7 @@ def train_net(model):
                        + str(t) + '.h5',
                        overwrite=True)
 
+
 def process_minibatch(minibatch):
     """This does the heavy lifting, aka, the training. It's super jacked"""
     X_train = []
