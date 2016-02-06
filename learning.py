@@ -4,14 +4,14 @@ import random
 import csv
 from nn import neural_net
 
-NUM_SENSORS = 44  # The input size of our NN.
+NUM_SENSORS = 53  # The input size of our NN.
 GAMMA = 0.9  # Impact of each observation on training.
 
 
 def train_net(model):
 
-    observe = 1000  # Number of frames before training.
-    epochs = 1000  # Number of games to play.
+    observe = 5000  # Number of frames to observe before training.
+    epochs = 5000  # Number of games to play.
     epsilon = 1
     batchSize = 40
     buffer = 50000

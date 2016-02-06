@@ -161,7 +161,7 @@ class GameState:
         sens_points = []
 
         # Let's try making it a big grid.
-        for i in ([0, 1, 2, 3, 4]):
+        for i in ([0, 1, 2, 3, 4, 5]):
             for j in ([-4, 4, -3, 3, -2, 2, -1, 1, 0]):
                 if i == 0 and j == 0:
                     continue  # Skip the dot on top of the car.
