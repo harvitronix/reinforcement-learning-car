@@ -3,8 +3,7 @@ import math
 import numpy as np
 
 import pygame
-from pygame.locals import *
-from pygame.color import *
+from pygame.color import THECOLORS
 
 import pymunk
 from pymunk.vec2d import Vec2d
@@ -30,18 +29,20 @@ class GameState:
         self.space.gravity = pymunk.Vec2d(0., 0.)
         self.space.add_collision_handler(1, 1, post_solve=self.car_crashed)
 
-        # Create a car.
-        inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
-        self.car_body = pymunk.Body(1, inertia)
-        self.car_body.position = 100, 100
-        self.car_shape = pymunk.Circle(self.car_body, 30)
-        self.car_shape.color = THECOLORS["green"]
-        self.car_shape.elasticity = 1.0
-        self.car_body.angle = 0.5
-        self.car_shape.collision_type = 1
-        driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
-        self.car_body.apply_impulse(driving_direction)
-        self.space.add(self.car_body, self.car_shape)
+        # Create a car at a random corner.
+        corner = random.randint(0, 3)
+        if corner == 0:
+            # Bottom left.
+            self.create_car(100, 100, 0.5)
+        elif corner == 1:
+            # Top left.
+            self.create_car(100, height-100, 5)
+        elif corner == 2:
+            # Bottom right.
+            self.create_car(width-100, 100, 2.5)
+        elif corner == 3:
+            # Top right.
+            self.create_car(width-100, height-100, 3.5)
 
         # To increase speed.
         self.num_steps = 0
@@ -68,11 +69,17 @@ class GameState:
             s.color = THECOLORS['blue']
         self.space.add(static)
 
-        # Create a circle in the middle to go around.
-        self.create_obstacle(450, 350, 100)
-
-        # Create a smaller one.
-        # self.create_obstacle(750, 250, 50)
+        # Create some obstacles, semi-randomly.
+        if random.random() > 0.5:
+            self.create_obstacle(450, 350, 100)
+        else:
+            self.create_obstacle(300, 350, 150)
+        if random.random() > 0.5:
+            self.create_obstacle(750, 250, 50)
+        else:
+            self.create_obstacle(750, 350, 80)
+        if random.random() > 0.5:
+            self.create_obstacle(600, 600, 25)
 
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -82,6 +89,19 @@ class GameState:
         c_body.position = x, y
         c_shape.color = THECOLORS["red"]
         self.space.add(c_body, c_shape)
+
+    def create_car(self, x, y, r):
+        inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
+        self.car_body = pymunk.Body(1, inertia)
+        self.car_body.position = x, y
+        self.car_shape = pymunk.Circle(self.car_body, 25)
+        self.car_shape.color = THECOLORS["green"]
+        self.car_shape.elasticity = 1.0
+        self.car_body.angle = r
+        self.car_shape.collision_type = 1
+        driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
+        self.car_body.apply_impulse(driving_direction)
+        self.space.add(self.car_body, self.car_shape)
 
     def car_crashed(self, space, arbiter):
         if arbiter.is_first_contact:
@@ -95,21 +115,24 @@ class GameState:
             self.car_body.angle += .2
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
-        # self.car_body.velocity = 100 * driving_direction
+
         # Make it get faster over time.
         self.car_body.velocity = (100 + self.num_steps * speed_multiplier) \
             * driving_direction
 
+        # Get the current location and the readings there.
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
         state = np.array([readings])
 
+        # Update the screen and stuff.
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
         self.space.step(1./10)
         pygame.display.flip()
         clock.tick()
 
+        # Set the reward.
         if self.crashed:
             reward = -500
         else:
@@ -126,24 +149,13 @@ class GameState:
         return tot
 
     def get_sensor_readings(self, x, y, angle):
-        # Get a bunch of sensor points, draw them, return whether they
-        # are on the track or not.
-
         # Set a default distance.
         distance = 40
 
         # Get the points, as if the angle is 0.
         # We use a list because it retains order.
         sens_points = []
-        """
-        # Fan out the points.
-        for i in ([1, 1.5, 2, 2.5, 3, 3.5]):
-            sens_points.append((x+(distance*i), y))
-            sens_points.append((x+(distance*i), y+(distance*i)))
-            sens_points.append((x, y+(distance*(i*1.3))))
-            sens_points.append((x-(distance*i), y+(distance*i)))
-            sens_points.append((x-(distance*i), y))
-        """
+
         # Let's try making it a big grid.
         for i in ([0, 1, 2, 3, 4]):
             for j in ([-4, 4, -3, 3, -2, 2, -1, 1, 0]):
@@ -165,8 +177,8 @@ class GameState:
                 obs = screen.get_at(rotated_p)
                 sensor_obs.append(self.get_track_or_not(obs))
             # Now that we have the color, draw so we can see.
-            pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        pygame.display.update()
+            # pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
+        # pygame.display.update()
 
         return sensor_obs
 
@@ -192,10 +204,3 @@ class GameState:
             return 2  # Sensor is on a wall.
         else:
             return 0
-
-if __name__ == '__main__':
-    game_state = GameState()
-    while 'bear' != 'eacho':
-        reward, readings = game_state.frame_step(random.randint(0, 3))
-        if reward < 0:
-            game_state = GameState()

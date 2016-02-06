@@ -1,3 +1,8 @@
+"""
+The design of this comes from here:
+http://outlace.com/Reinforcement-Learning-Part-3/
+"""
+
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 from keras.optimizers import RMSprop
@@ -14,7 +19,6 @@ def neural_net(num_sensors, load=False):
     model.add(Dropout(0.2))
 
     model.add(Dense(3, init='lecun_uniform'))
-    # linear output so we can have range of real-valued outputs
     model.add(Activation('linear'))
 
     rms = RMSprop()

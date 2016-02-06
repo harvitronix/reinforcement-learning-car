@@ -6,6 +6,8 @@ from flat_game import carmunk
 import numpy as np
 from nn import neural_net
 
+NUM_SENSORS = 44
+
 
 def play(model):
 
@@ -24,11 +26,12 @@ def play(model):
         # Take action.
         reward, state = game_state.frame_step(action)
 
+        # Tell us something.
         if car_distance % 1000 == 0:
             print("Current distance: %d frames." % car_distance)
 
-    print("Made it %d frames!" % car_distance)
+    print("Made it %d frames." % car_distance)
 
 if __name__ == "__main__":
-    model = neural_net(True)
+    model = neural_net(NUM_SENSORS, True)
     play(model)
