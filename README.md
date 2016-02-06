@@ -24,3 +24,11 @@ Then, watch the car drive itself around the obstacles!
 `python3 playing.py`
 
 That's all there is to it.
+
+## Credits
+
+I'm grateful to the following people and the work they did that helped me learn how to do this:
+
+- Deep learning to play Atari games: https://github.com/spragunr/deep_q_rl
+- Another deep learning project for video games: https://github.com/asrivat1/DeepLearningVideoGames
+- A great tutorial on reinforcement learning that a lot of my project is based on: http://outlace.com/Reinforcement-Learning-Part-3/
