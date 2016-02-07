@@ -74,15 +74,15 @@ class GameState:
 
         # Create some obstacles, semi-randomly.
         if random.random() > 0.5:
-            self.create_obstacle(450, 350, 100)
+            self.create_obstacle(450, 350, random.randint(75, 125))
         else:
-            self.create_obstacle(300, 350, 150)
+            self.create_obstacle(300, 350, random.randint(125, 150))
         if random.random() > 0.5:
-            self.create_obstacle(750, 250, 50)
+            self.create_obstacle(750, 200, random.randint(75, 125))
         else:
-            self.create_obstacle(750, 350, 80)
+            self.create_obstacle(750, 350, random.randint(50, 100))
         if random.random() > 0.5:
-            self.create_obstacle(600, 600, 25)
+            self.create_obstacle(600, 600, random.randint(25, 50))
 
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -138,9 +138,8 @@ class GameState:
         # Set the reward.
         if self.crashed:
             reward = -500
-            screen.fill(THECOLORS["red"])  # Try to flash the screen for fun.
         else:
-            reward = 30 - self.sum_readings(readings)
+            reward = 50 - self.sum_readings(readings)
 
         self.num_steps += 1
 
