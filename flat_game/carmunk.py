@@ -19,7 +19,7 @@ running = True
 speed_multiplier = 0.02
 
 # Showing sensors slows things down.
-show_sensors = True
+show_sensors = False
 
 
 class GameState:
@@ -69,7 +69,7 @@ class GameState:
             s.friction = 1.
             s.group = 1
             s.collision_type = 1
-            s.color = THECOLORS['blue']
+            s.color = THECOLORS['red']
         self.space.add(static)
 
         # Create some obstacles, semi-randomly.
@@ -90,7 +90,7 @@ class GameState:
         c_shape.collision_type = 1
         c_shape.elasticity = 1.0
         c_body.position = x, y
-        c_shape.color = THECOLORS["red"]
+        c_shape.color = THECOLORS["blue"]
         self.space.add(c_body, c_shape)
 
     def create_car(self, x, y, r):
@@ -157,7 +157,7 @@ class GameState:
         crumb_body.position = x, y
         crumb_shape.color = THECOLORS["white"]
         self.space.add(crumb_body, crumb_shape)
-        #screen.set_at((int(x), int(y)), THECOLORS["white"])
+        # screen.set_at((int(x), int(y)), THECOLORS["white"])
 
     def sum_readings(self, readings):
         """Sum the number of non-zero readings."""
@@ -201,6 +201,7 @@ class GameState:
         if show_sensors:
             pygame.display.update()
 
+        print(sensor_obs)
         return sensor_obs
 
     def get_rotated_point(self, x_1, y_1, x_2, y_2, radians):
@@ -219,9 +220,9 @@ class GameState:
         # Reading[0] is 255 when it's red.
         # Reading[2] is 255 when it's blue.
         # Reading[1] is 255 when it's green.
-        if reading[0] == 255:
+        if reading == THECOLORS['blue']:
             return 1  # Sensor is on a ball.
-        elif reading[2] == 255:
+        elif reading == THECOLORS['red']:
             return 2  # Sensor is on a wall.
         else:
             return 0
