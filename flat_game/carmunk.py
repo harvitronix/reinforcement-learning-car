@@ -144,7 +144,7 @@ class GameState:
         if self.crashed:
             reward = -500
         else:
-            reward = 50 - self.sum_readings(readings)
+            reward = 30 - self.sum_readings(readings)
             # reward = 1
 
         self.num_steps += 1
@@ -160,9 +160,11 @@ class GameState:
         #screen.set_at((int(x), int(y)), THECOLORS["white"])
 
     def sum_readings(self, readings):
+        """Sum the number of non-zero readings."""
         tot = 0
         for i in readings:
-            tot += i
+            if i > 0:
+                tot += 1  # Reduce wall reading (2) to 1.
         return tot
 
     def get_sensor_readings(self, x, y, angle):
