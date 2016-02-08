@@ -25,6 +25,6 @@ def neural_net(num_sensors, load=False):
     model.compile(loss='mse', optimizer=rms)
 
     if load:
-        model.load_weights('saved-models/model-weights-1474.h5')
+        model.load_weights('saved-models/model-weights-6046.h5')
 
     return model

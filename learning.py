@@ -10,11 +10,12 @@ GAMMA = 0.9  # Impact of each observation on training.
 
 def train_net(model):
 
-    observe = 5000  # Number of frames to observe before training.
-    epochs = 5000  # Number of games to play.
+    observe = 1000  # Number of frames to observe before training.
+    epochs = 1000  # Number of games to play.
     epsilon = 1
     batchSize = 40
-    buffer = 50000
+    # buffer = 50000
+    buffer = 5000
 
     # Just stuff used below.
     max_car_distance = 0
@@ -78,8 +79,8 @@ def train_net(model):
                     max_car_distance = car_distance
 
                     # Save the model.
-                    model.save_weights('saved-models/model-weights-'
-                                       + str(car_distance) + '.h5',
+                    model.save_weights('saved-models/model-weights-' +
+                                       str(car_distance) + '.h5',
                                        overwrite=True)
 
         # Decrement epsilon over time.

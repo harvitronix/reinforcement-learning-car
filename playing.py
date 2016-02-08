@@ -17,6 +17,7 @@ def play(model):
     # Do nothing to get initial.
     reward, state = game_state.frame_step((2))
 
+    # Change this to "whilte True" to make it never die.
     while reward != -500:
         car_distance += 1
 

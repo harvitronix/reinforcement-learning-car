@@ -19,7 +19,7 @@ running = True
 speed_multiplier = 0.02
 
 # Showing sensors slows things down.
-show_sensors = False
+show_sensors = True
 
 
 class GameState:
@@ -120,13 +120,18 @@ class GameState:
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
 
         # Make it get faster over time.
-        self.car_body.velocity = (100 + self.num_steps * speed_multiplier) \
-            * driving_direction
+        # self.car_body.velocity = (100 + self.num_steps * speed_multiplier) \
+        #    * driving_direction
+        self.car_body.velocity = 100 * driving_direction
 
         # Get the current location and the readings there.
         x, y = self.car_body.position
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
         state = np.array([readings])
+
+        # Breadcrumbs totally break its navigation.
+        # if self.num_steps % 10 == 0:
+        # self.drop_crumb(x, y)
 
         # Update the screen and stuff.
         screen.fill(THECOLORS["black"])
@@ -140,10 +145,19 @@ class GameState:
             reward = -500
         else:
             reward = 50 - self.sum_readings(readings)
+            # reward = 1
 
         self.num_steps += 1
 
         return reward, state
+
+    def drop_crumb(self, x, y):
+        crumb_body = pymunk.Body(pymunk.inf, pymunk.inf)
+        crumb_shape = pymunk.Circle(crumb_body, 2)
+        crumb_body.position = x, y
+        crumb_shape.color = THECOLORS["white"]
+        self.space.add(crumb_body, crumb_shape)
+        #screen.set_at((int(x), int(y)), THECOLORS["white"])
 
     def sum_readings(self, readings):
         tot = 0
@@ -199,7 +213,7 @@ class GameState:
         return int(new_x), int(new_y)
 
     def get_track_or_not(self, reading):
-        # Check the colors returned and conver to a 1 or a 0.
+        # Check the colors returned and convert to a 1 or a 0.
         # Reading[0] is 255 when it's red.
         # Reading[2] is 255 when it's blue.
         # Reading[1] is 255 when it's green.
