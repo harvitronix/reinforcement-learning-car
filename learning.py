@@ -4,7 +4,7 @@ import random
 import csv
 from nn import neural_net
 
-NUM_SENSORS = 53  # The input size of our NN.
+NUM_SENSORS = 19  # The input size of our NN.
 GAMMA = 0.9  # Impact of each observation on training.
 
 

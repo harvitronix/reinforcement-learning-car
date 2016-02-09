@@ -169,15 +169,23 @@ class GameState:
 
     def get_sensor_readings(self, x, y, angle):
         # Set a default distance.
-        distance = 40
+        distance = 35
 
         # Get the points, as if the angle is 0.
         # We use a list because it retains order.
         sens_points = []
 
         # Let's try making it a big grid.
+        """
         for i in ([0, 1, 2, 3, 4, 5]):
             for j in ([-4, 4, -3, 3, -2, 2, -1, 1, 0]):
+                if i == 0 and j == 0:
+                    continue  # Skip the dot on top of the car.
+                sens_points.append((x+(distance*j), y+(i*distance)))
+        """
+        # Use far fewer sensors.
+        for i in ([0, 1, 2, 3]):
+            for j in ([-2, 2, -1, 1, 0]):
                 if i == 0 and j == 0:
                     continue  # Skip the dot on top of the car.
                 sens_points.append((x+(distance*j), y+(i*distance)))
@@ -201,7 +209,6 @@ class GameState:
         if show_sensors:
             pygame.display.update()
 
-        print(sensor_obs)
         return sensor_obs
 
     def get_rotated_point(self, x_1, y_1, x_2, y_2, radians):
