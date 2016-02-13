@@ -144,7 +144,7 @@ class GameState:
         if self.crashed:
             reward = -500
         else:
-            reward = 30 - self.sum_readings(readings)
+            reward = 10 - self.sum_readings(readings)
             # reward = 1
 
         self.num_steps += 1
@@ -176,7 +176,6 @@ class GameState:
         sens_points = []
 
         # Let's try making it a big grid.
-        """
         for i in ([0, 1, 2, 3, 4, 5]):
             for j in ([-4, 4, -3, 3, -2, 2, -1, 1, 0]):
                 if i == 0 and j == 0:
@@ -189,6 +188,7 @@ class GameState:
                 if i == 0 and j == 0:
                     continue  # Skip the dot on top of the car.
                 sens_points.append((x+(distance*j), y+(i*distance)))
+        """
 
         # Now rotate those to make it in the front of the car.
         # And get the observations.
