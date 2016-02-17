@@ -2,7 +2,7 @@ from flat_game import carmunk
 import numpy as np
 import random
 import csv
-from nn import neural_net
+from nn import neural_net, lstm_net, LossHistory
 
 NUM_SENSORS = 53  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
@@ -11,17 +11,19 @@ GAMMA = 0.9  # Forgetting.
 def train_net(model):
 
     observe = 1000  # Number of frames to observe before training.
-    epochs = 10000  # Number of games to play.
+    epochs = 5000  # Number of games to play.
     epsilon = 1
-    batchSize = 40
-    # buffer = 50000
-    buffer = 500000
+    batchSize = 100
+    buffer = 50000
+    # buffer = 500000
 
     # Just stuff used below.
     max_car_distance = 0
     t = 0
     data_collect = []
     replay = []  # stores tuples of (S, A, R, S').
+
+    loss_log = []
 
     for i in range(epochs):
         # Create a new game instance.
@@ -64,10 +66,12 @@ def train_net(model):
                 X_train, y_train = process_minibatch(minibatch)
 
                 # Train the model on this batch.
+                history = LossHistory()
                 model.fit(
                     X_train, y_train, batch_size=batchSize,
-                    nb_epoch=1, verbose=0
+                    nb_epoch=1, verbose=0, callbacks=[history, checkpointer]
                 )
+                loss_log.append(history.losses[0])
 
             # Update the starting state with S'.
             state = new_state
@@ -96,6 +100,9 @@ def train_net(model):
     data_dump = open('results/learn_data-' + str(t) + '.csv', 'w')
     wr = csv.writer(data_dump)
     wr.writerows(data_collect)
+    loss_dump = open('results/loss_data-' + str(t) + '.csv', 'w')
+    wr = csv.writer(loss_dump)
+    wr.writerows(loss_log)
 
     # Save a last version of the model.
     model.save_weights('saved-models/model-weights-'
@@ -138,4 +145,5 @@ def process_minibatch(minibatch):
 if __name__ == "__main__":
     # Get the model and train our neural net!
     model = neural_net(NUM_SENSORS)
+    # model = lstm_net(NUM_SENSORS)
     train_net(model)
