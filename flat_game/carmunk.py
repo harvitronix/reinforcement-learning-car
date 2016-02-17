@@ -174,8 +174,9 @@ class GameState:
         # Let's try making it a big grid.
         for j in ([-8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, 0]):
             for i in ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
-                if i == 0 and j == 0:
-                    continue  # Skip the dot on top of the car.
+                if (i == 0 and (j == 0 or j == 1 or j == -1)) or \
+                        (i == 1 and j == 0):
+                    continue  # Skip the dots on top of the car.
                 sens_points.append((x+(distance*j), y+(i*distance)))
         """
         # Use far fewer sensors.
