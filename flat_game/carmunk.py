@@ -33,7 +33,7 @@ class GameState:
         self.space.add_collision_handler(1, 1, post_solve=self.car_crashed)
 
         # Create a car at a random corner.
-        corner = random.randint(0, 3)
+        corner = random.randint(0, 2)
         if corner == 0:
             # Bottom left.
             self.create_car(100, 100, 0.5)
@@ -41,9 +41,6 @@ class GameState:
             # Top left.
             self.create_car(100, height-100, 5)
         elif corner == 2:
-            # Bottom right.
-            self.create_car(width-100, 100, 2.5)
-        elif corner == 3:
             # Top right.
             self.create_car(width-100, height-100, 3.5)
 
