@@ -3,11 +3,10 @@ import numpy as np
 import random
 import csv
 from nn import neural_net, LossHistory
-import sys
 
 NUM_SENSORS = 183  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = True
+TUNING = True  # If false, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -100,6 +99,15 @@ def train_net(model, params):
         print("Max: %d at %d\tgame %d\tepsilon %f\t(%d)" %
               (max_car_distance, t, i, epsilon, car_distance))
 
+    # Log
+    log_results(filename, data_collect, loss_log)
+
+    # Save a last version of the model.
+    model.save_weights('saved-models/' + filename + '-' +
+                       str(t) + '.h5', overwrite=True)
+
+
+def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
     with open('results/learn_data-' + filename + '.csv', 'w') as data_dump:
         wr = csv.writer(data_dump)
@@ -109,10 +117,6 @@ def train_net(model, params):
         wr = csv.writer(lf)
         for loss_item in loss_log:
             wr.writerow(loss_item)
-
-    # Save a last version of the model.
-    model.save_weights('saved-models/' + filename + '-' +
-                       str(t) + '.h5', overwrite=True)
 
 
 def process_minibatch(minibatch):
