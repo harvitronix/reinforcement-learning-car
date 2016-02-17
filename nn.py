@@ -18,16 +18,22 @@ class LossHistory(Callback):
         self.losses.append(logs.get('loss'))
 
 
-def neural_net(num_sensors, load=False):
+def neural_net(num_sensors, params, load=False):
     model = Sequential()
-    model.add(Dense(512, init='lecun_uniform', input_shape=(num_sensors,)))
+
+    # First layer.
+    model.add(Dense(
+        params[0], init='lecun_uniform', input_shape=(num_sensors,)
+    ))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
-    model.add(Dense(512, init='lecun_uniform'))
+    # Second layer.
+    model.add(Dense(params[1], init='lecun_uniform'))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
+    # Output layer.
     model.add(Dense(3, init='lecun_uniform'))
     model.add(Activation('linear'))
 

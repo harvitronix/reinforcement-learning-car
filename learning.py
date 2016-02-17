@@ -2,20 +2,22 @@ from flat_game import carmunk
 import numpy as np
 import random
 import csv
-from nn import neural_net, lstm_net, LossHistory
+from nn import neural_net, LossHistory
 
 NUM_SENSORS = 53  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
+TUNING = True
 
 
-def train_net(model):
+def train_net(model, params):
 
-    observe = 200  # Number of frames to observe before training.
-    epochs = 5000  # Number of games to play.
+    filename = params_to_filename(params)
+
+    observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    batchSize = 100
-    buffer = 50000
-    # buffer = 500000
+    epochs = 1000  # Number of games to play.
+    batchSize = params['batchSize']
+    buffer = params['buffer']
 
     # Just stuff used below.
     max_car_distance = 0
@@ -69,7 +71,7 @@ def train_net(model):
                 history = LossHistory()
                 model.fit(
                     X_train, y_train, batch_size=batchSize,
-                    nb_epoch=1, verbose=0, callbacks=[history, checkpointer]
+                    nb_epoch=1, verbose=0, callbacks=[history]
                 )
                 loss_log.append(history.losses[0])
 
@@ -83,7 +85,7 @@ def train_net(model):
                     max_car_distance = car_distance
 
                     # Save the model.
-                    model.save_weights('saved-models/model-weights-' +
+                    model.save_weights('saved-models/' + filename + '-' +
                                        str(car_distance) + '.h5',
                                        overwrite=True)
 
@@ -141,8 +143,35 @@ def process_minibatch(minibatch):
 
     return X_train, y_train
 
+
+def params_to_filename(params):
+    return '-'.join(params)
+
+
 if __name__ == "__main__":
-    # Get the model and train our neural net!
-    model = neural_net(NUM_SENSORS)
-    # model = lstm_net(NUM_SENSORS)
-    train_net(model)
+    if TUNING:
+        nn_params = [[164, 150][256, 256][512, 512]]
+        batchSizes = [32, 40, 50, 100, 400]
+        buffers = [50000, 500000, 1000000]
+
+        for nn_param in nn_params:
+            for batchSize in batchSizes:
+                for buffer in buffers:
+                    params = {
+                        "batchSize": batchSize,
+                        "buffer": buffer,
+                        "nn": nn_param
+                    }
+                    model = neural_net(NUM_SENSORS, nn_param)
+                    train_net(model, params)
+
+    else:
+        nn_param = [512, 512]
+        params = {
+            "epochs": 1000,
+            "batchSize": 40,
+            "buffer": 50000,
+            "nn": nn_param
+        }
+        model = neural_net(NUM_SENSORS, nn_param)
+        train_net(model, params)
