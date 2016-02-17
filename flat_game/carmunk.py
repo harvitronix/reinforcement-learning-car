@@ -19,7 +19,7 @@ running = True
 speed_multiplier = 0.02
 
 # Showing sensors slows things down.
-show_sensors = True
+show_sensors = False
 
 
 class GameState:

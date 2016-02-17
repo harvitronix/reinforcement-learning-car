@@ -3,8 +3,9 @@ import numpy as np
 import random
 import csv
 from nn import neural_net, LossHistory
+import sys
 
-NUM_SENSORS = 186  # The input size of our NN.
+NUM_SENSORS = 183  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
 TUNING = True
 
@@ -15,7 +16,7 @@ def train_net(model, params):
 
     observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    epochs = 1000  # Number of games to play.
+    epochs = 750  # Number of games to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -73,7 +74,7 @@ def train_net(model, params):
                     X_train, y_train, batch_size=batchSize,
                     nb_epoch=1, verbose=0, callbacks=[history]
                 )
-                loss_log.append(history.losses[0])
+                loss_log.append(history.losses)
 
             # Update the starting state with S'.
             state = new_state
@@ -85,9 +86,10 @@ def train_net(model, params):
                     max_car_distance = car_distance
 
                     # Save the model.
-                    model.save_weights('saved-models/' + filename + '-' +
-                                       str(car_distance) + '.h5',
-                                       overwrite=True)
+                    if car_distance > 200:
+                        model.save_weights('saved-models/' + filename + '-' +
+                                           str(car_distance) + '.h5',
+                                           overwrite=True)
 
         # Decrement epsilon over time.
         if epsilon > 0.1 and t > observe:
@@ -99,20 +101,22 @@ def train_net(model, params):
               (max_car_distance, t, i, epsilon, car_distance))
 
     # Save the results to a file so we can graph it later.
-    data_dump = open('results/learn_data-' + filename + '.csv', 'w')
-    wr = csv.writer(data_dump)
-    wr.writerows(data_collect)
-    loss_dump = open('results/loss_data-' + filename + '.csv', 'w')
-    wr = csv.writer(loss_dump)
-    wr.writerows(loss_log)
+    with open('results/learn_data-' + filename + '.csv', 'w') as data_dump:
+        wr = csv.writer(data_dump)
+        wr.writerows(data_collect)
+
+    with open('results/loss_data-' + filename + '.csv', 'w') as lf:
+        wr = csv.writer(lf)
+        for loss_item in loss_log:
+            wr.writerow(loss_item)
 
     # Save a last version of the model.
-    model.save_weights('saved-models/model-weights-' +
+    model.save_weights('saved-models/' + filename + '-' +
                        str(t) + '.h5', overwrite=True)
 
 
 def process_minibatch(minibatch):
-    """This does the heavy lifting, aka, the training. It's super jacked"""
+    """This does the heavy lifting, aka, the training. It's super jacked."""
     X_train = []
     y_train = []
     # Loop through our batch and create arrays for X and y
@@ -145,14 +149,14 @@ def process_minibatch(minibatch):
 
 
 def params_to_filename(params):
-    filename = str(params['nn'][0]) + '-' + str(params['nn'][1]) + '-' + \
-            str(params['batchSize']) + str(params['buffer'])
-    return filename
+    return str(params['nn'][0]) + '-' + str(params['nn'][1]) + '-' + \
+            str(params['batchSize']) + '-' + str(params['buffer'])
 
 
 if __name__ == "__main__":
     if TUNING:
-        nn_params = [[20, 20], [164, 150], [256, 256], [512, 512]]
+        nn_params = [[20, 20], [164, 150], [256, 256],
+                     [512, 512], [1000, 1000]]
         batchSizes = [32, 40, 100, 400]
         buffers = [50000, 500000, 1000000]
 
@@ -170,7 +174,6 @@ if __name__ == "__main__":
     else:
         nn_param = [512, 512]
         params = {
-            "epochs": 1000,
             "batchSize": 40,
             "buffer": 50000,
             "nn": nn_param
