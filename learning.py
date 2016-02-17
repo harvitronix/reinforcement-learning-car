@@ -10,7 +10,7 @@ GAMMA = 0.9  # Forgetting.
 
 def train_net(model):
 
-    observe = 1000  # Number of frames to observe before training.
+    observe = 200  # Number of frames to observe before training.
     epochs = 5000  # Number of games to play.
     epsilon = 1
     batchSize = 100
@@ -105,9 +105,8 @@ def train_net(model):
     wr.writerows(loss_log)
 
     # Save a last version of the model.
-    model.save_weights('saved-models/model-weights-'
-                       + str(t) + '.h5',
-                       overwrite=True)
+    model.save_weights('saved-models/model-weights-' +
+                       str(t) + '.h5', overwrite=True)
 
 
 def process_minibatch(minibatch):
