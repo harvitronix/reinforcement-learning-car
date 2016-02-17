@@ -4,7 +4,7 @@ import random
 import csv
 from nn import neural_net, LossHistory
 
-NUM_SENSORS = 53  # The input size of our NN.
+NUM_SENSORS = 186  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
 TUNING = True
 
@@ -99,10 +99,10 @@ def train_net(model, params):
               (max_car_distance, t, i, epsilon, car_distance))
 
     # Save the results to a file so we can graph it later.
-    data_dump = open('results/learn_data-' + str(t) + '.csv', 'w')
+    data_dump = open('results/learn_data-' + filename + '.csv', 'w')
     wr = csv.writer(data_dump)
     wr.writerows(data_collect)
-    loss_dump = open('results/loss_data-' + str(t) + '.csv', 'w')
+    loss_dump = open('results/loss_data-' + filename + '.csv', 'w')
     wr = csv.writer(loss_dump)
     wr.writerows(loss_log)
 
@@ -145,13 +145,15 @@ def process_minibatch(minibatch):
 
 
 def params_to_filename(params):
-    return '-'.join(params)
+    filename = str(params['nn'][0]) + '-' + str(params['nn'][1]) + '-' + \
+            str(params['batchSize']) + str(params['buffer'])
+    return filename
 
 
 if __name__ == "__main__":
     if TUNING:
-        nn_params = [[164, 150][256, 256][512, 512]]
-        batchSizes = [32, 40, 50, 100, 400]
+        nn_params = [[20, 20], [164, 150], [256, 256], [512, 512]]
+        batchSizes = [32, 40, 100, 400]
         buffers = [50000, 500000, 1000000]
 
         for nn_param in nn_params:
