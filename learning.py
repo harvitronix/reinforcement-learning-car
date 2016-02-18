@@ -15,7 +15,7 @@ def train_net(model, params):
 
     observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    epochs = 750  # Number of games to play.
+    train_frames = 250000  # Number of frames to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -27,7 +27,7 @@ def train_net(model, params):
 
     loss_log = []
 
-    for i in range(epochs):
+    while t < train_frames:
         # Create a new game instance.
         game_state = carmunk.GameState()
         status = 1
@@ -92,14 +92,14 @@ def train_net(model, params):
 
         # Decrement epsilon over time.
         if epsilon > 0.1 and t > observe:
-            epsilon -= (1/epochs)
+            epsilon -= (1/2000)
 
         # Log the car's distance at this T.
         data_collect.append([t, car_distance])
-        print("Max: %d at %d\tgame %d\tepsilon %f\t(%d)" %
-              (max_car_distance, t, i, epsilon, car_distance))
+        print("Max: %d at %d\tepsilon %f\t(%d)" %
+              (max_car_distance, t, epsilon, car_distance))
 
-    # Log
+    # Log results after we're done all frames.
     log_results(filename, data_collect, loss_log)
 
     # Save a last version of the model.
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         nn_params = [[20, 20], [164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
         batchSizes = [32, 40, 100, 400]
-        buffers = [50000, 500000, 1000000]
+        buffers = [10000, 50000, 500000]
 
         for nn_param in nn_params:
             for batchSize in batchSizes:
