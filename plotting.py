@@ -9,15 +9,19 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-# From http://stackoverflow.com/questions/11352047/finding-moving-average-from-data-points-in-python
+
 def movingaverage(y, window_size):
+    """
+    Moving average function from:
+    http://stackoverflow.com/questions/11352047/finding-moving-average-from-data-points-in-python
+    """
     window = np.ones(int(window_size))/float(window_size)
     return np.convolve(y, window, 'same')
 
 
 # Get our loss result files.
 os.chdir("results")
-for f in glob.glob("loss_*.csv"):
+for f in glob.glob("*.csv"):
     with open(f, 'r') as csvfile:
         reader = csv.reader(csvfile)
         # Turn our column into an array.
@@ -33,10 +37,12 @@ for f in glob.glob("loss_*.csv"):
         # The -50 removes an artificial drop at the end caused by the moving
         # average.
         plt.plot(y_av[:-50])
-        plt.ylabel('Loss')
-        plt.ylim(0, 5000)
-        plt.xlim(0, 250000)
+        plt.ylabel('Loss/Frames')
+        #plt.ylim(0, 5000)
+        #plt.xlim(0, 250000)
         plt.show()
         # plt.draw()
 
+# We put this here in case we used draw above, to make sure it doesn't close
+# the graph until we want it to.
 plt.show()
