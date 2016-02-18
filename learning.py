@@ -15,7 +15,7 @@ def train_net(model, params):
 
     observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    train_frames = 250000  # Number of frames to play.
+    train_frames = 150000  # Number of frames to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -92,7 +92,7 @@ def train_net(model, params):
 
         # Decrement epsilon over time.
         if epsilon > 0.1 and t > observe:
-            epsilon -= (1/2000)
+            epsilon -= (1/5000)
 
         # Log the car's distance at this T.
         data_collect.append([t, car_distance])
