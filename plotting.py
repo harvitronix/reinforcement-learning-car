@@ -21,7 +21,7 @@ def movingaverage(y, window_size):
 
 # Get our loss result files.
 os.chdir("results")
-for f in glob.glob("*.csv"):
+for f in glob.glob("loss*.csv"):
     with open(f, 'r') as csvfile:
         reader = csv.reader(csvfile)
         # Turn our column into an array.
@@ -38,8 +38,8 @@ for f in glob.glob("*.csv"):
         # average.
         plt.plot(y_av[:-50])
         plt.ylabel('Loss/Frames')
-        #plt.ylim(0, 5000)
-        #plt.xlim(0, 250000)
+        plt.ylim(0, 5000)
+        plt.xlim(0, 150000)
         plt.show()
         # plt.draw()
 
