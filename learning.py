@@ -3,6 +3,8 @@ import numpy as np
 import random
 import csv
 from nn import neural_net, LossHistory
+from multiprocessing import Pool
+import os.path
 
 NUM_SENSORS = 183  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
@@ -65,7 +67,7 @@ def train_net(model, params):
                 minibatch = random.sample(replay, batchSize)
 
                 # Get training values.
-                X_train, y_train = process_minibatch(minibatch)
+                X_train, y_train = process_minibatch(minibatch, model)
 
                 # Train the model on this batch.
                 history = LossHistory()
@@ -119,7 +121,7 @@ def log_results(filename, data_collect, loss_log):
             wr.writerow(loss_item)
 
 
-def process_minibatch(minibatch):
+def process_minibatch(minibatch, model):
     """This does the heavy lifting, aka, the training. It's super jacked."""
     X_train = []
     y_train = []
@@ -157,8 +159,25 @@ def params_to_filename(params):
             str(params['batchSize']) + '-' + str(params['buffer'])
 
 
+def launch_learn(params):
+    filename = params_to_filename(params)
+    print("Trying %s" % filename)
+    # Make sure we haven't run this one.
+    if not os.path.isfile('results/loss_data-' + filename + '.csv'):
+        # Create file so we don't double test when we run multiple
+        # instances of the script at the same time.
+        open('results/loss_data-' + filename + '.csv', 'a').close()
+        print("Starting test.")
+        # Train.
+        model = neural_net(NUM_SENSORS, params['nn'])
+        train_net(model, params)
+    else:
+        print("Already tested.")
+
+
 if __name__ == "__main__":
     if TUNING:
+        param_list = []
         nn_params = [[164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
         batchSizes = [32, 40, 100, 400]
@@ -172,8 +191,10 @@ if __name__ == "__main__":
                         "buffer": buffer,
                         "nn": nn_param
                     }
-                    model = neural_net(NUM_SENSORS, nn_param)
-                    train_net(model, params)
+                    param_list.append(params)
+
+        for param_set in param_list:
+            launch_learn(param_set)
 
     else:
         nn_param = [512, 512]
