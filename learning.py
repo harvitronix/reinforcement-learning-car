@@ -159,7 +159,7 @@ def params_to_filename(params):
 
 if __name__ == "__main__":
     if TUNING:
-        nn_params = [[20, 20], [164, 150], [256, 256],
+        nn_params = [[164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
         batchSizes = [32, 40, 100, 400]
         buffers = [10000, 50000, 500000]

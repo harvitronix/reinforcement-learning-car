@@ -39,7 +39,7 @@ for f in glob.glob("loss*.csv"):
         plt.plot(y_av[:-50])
         plt.ylabel('Loss/Frames')
         plt.ylim(0, 5000)
-        plt.xlim(0, 150000)
+        plt.xlim(0, 250000)
         plt.show()
         # plt.draw()
 
