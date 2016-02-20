@@ -41,19 +41,14 @@ for f in glob.glob("loss*.csv"):
         arr = np.array(y_av)
         print("%f\t%f\t%f" % (arr.min(), arr.mean(), arr.std()))
 
-        continue
+        # continue  # Skip plotting.
 
         # Plot it.
         plt.title(f)
         # The -50 removes an artificial drop at the end caused by the moving
         # average.
         plt.plot(y_av[:-50])
-        plt.ylabel('Loss/Frames')
+        plt.ylabel('Smoothed Loss')
         plt.ylim(0, 5000)
         plt.xlim(0, 250000)
-        plt.show()
-        # plt.draw()
-
-# We put this here in case we used draw above, to make sure it doesn't close
-# the graph until we want it to.
-plt.show()
+        plt.savefig(f + '.png', bbox_inches='tight')
