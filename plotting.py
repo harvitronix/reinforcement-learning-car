@@ -23,15 +23,25 @@ def movingaverage(y, window_size):
 os.chdir("results")
 for f in glob.glob("loss*.csv"):
     with open(f, 'r') as csvfile:
-        print(csvfile)
+        print(f)
         reader = csv.reader(csvfile)
         # Turn our column into an array.
         y = []
         for row in reader:
             y.append(float(row[0]))
 
+        # Running tests will be empty.
+        if len(y) == 0:
+            continue
+
         # Get the moving average so the graph isn't so crazy.
         y_av = movingaverage(y, 100)
+
+        # Use our moving average to get some metrics.
+        arr = np.array(y_av)
+        print("%f\t%f\t%f" % (arr.min(), arr.mean(), arr.std()))
+
+        continue
 
         # Plot it.
         plt.title(f)
