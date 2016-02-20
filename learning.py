@@ -3,10 +3,9 @@ import numpy as np
 import random
 import csv
 from nn import neural_net, LossHistory
-from multiprocessing import Pool
 import os.path
 
-NUM_SENSORS = 183  # The input size of our NN.
+NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
 TUNING = True  # If false, just use arbitrary, pre-selected params.
 
