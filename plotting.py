@@ -23,6 +23,7 @@ def movingaverage(y, window_size):
 os.chdir("results")
 for f in glob.glob("loss*.csv"):
     with open(f, 'r') as csvfile:
+        print(csvfile)
         reader = csv.reader(csvfile)
         # Turn our column into an array.
         y = []
