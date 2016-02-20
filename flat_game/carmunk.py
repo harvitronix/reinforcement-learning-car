@@ -22,7 +22,7 @@ speed_multiplier = 0.02
 screen.set_alpha(None)
 
 # Showing sensors slows things down.
-show_sensors = True
+show_sensors = False
 
 
 class GameState:
