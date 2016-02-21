@@ -25,7 +25,7 @@ First, you need to train a model. This will save weights to the `saved-models` f
 
 `python3 learning.py`
 
-On my MBP with four cores, it takes -2-3- 8-12 hours to train a model. However, it will spit out weights whenever it has a "best" run, so you can move on to the next step in just 5-10 minutes while it continues to train.
+On my MBP with four cores, it takes ~~2-3~~ 8-12 hours to train a model. However, it will spit out weights whenever it has a "best" run, so you can move on to the next step in just 5-10 minutes while it continues to train.
 
 ### Playing
 
