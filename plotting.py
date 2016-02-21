@@ -68,6 +68,8 @@ def plot_file(filename, type='loss'):
         else:
             print("%f\t%f\n" % (arr.max(), arr.mean()))
 
+        return  # Skip plotting.
+
         # Plot it.
         plt.clf()  # Clear.
         plt.title(f)
