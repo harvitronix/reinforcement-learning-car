@@ -62,6 +62,8 @@ def plot_file(filename, type='loss'):
         else:
             plt.plot(y_av[:-5])
             plt.ylabel('Smoothed Distance')
+            plt.ylim(0, 4000)
+            plt.xlim(0, 4000)
 
         plt.savefig(f + '.png', bbox_inches='tight')
 
