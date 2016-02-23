@@ -104,6 +104,7 @@ def train_net(model, params):
             model.save_weights('saved-models/' + filename + '-' +
                                str(t) + '.h5',
                                overwrite=True)
+            print("Saving model %s - %d" % (filename, t))
 
     # Log results after we're done all frames.
     log_results(filename, data_collect, loss_log)
@@ -197,7 +198,7 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [512, 512]
+        nn_param = [40, 40]
         params = {
             "batchSize": 40,
             "buffer": 10000,
