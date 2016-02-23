@@ -118,10 +118,6 @@ class GameState:
             self.car_body.angle += .2
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
-
-        # Make it get faster over time.
-        # self.car_body.velocity = (100 + self.num_steps * speed_multiplier) \
-        #    * driving_direction
         self.car_body.velocity = 100 * driving_direction
 
         # Get the current location and the readings there.
@@ -143,12 +139,30 @@ class GameState:
         # Set the reward.
         if self.crashed:
             reward = -500
+            self.recover_from_crash(driving_direction)
         else:
-            reward = 75 - self.sum_readings(readings)
-            # reward = 1
+            # Higher readings are better, so return the sum.
+            reward = int(self.sum_readings(readings) / 10)
         self.num_steps += 1
 
         return reward, state
+
+    def recover_from_crash(self, driving_direction):
+        """
+        We hit something, so recover.
+        """
+        while self.crashed:
+            self.car_body.velocity = -100 * driving_direction
+            self.crashed = False
+            for i in range(10):
+                screen.fill(THECOLORS["red"])
+                draw(screen, self.space)
+                self.space.step(1./10)
+                # pygame.display.flip()
+                clock.tick()
+
+        # Now go forward again to keep going.
+        self.car_body.velocity = 100 * driving_direction
 
     def drop_crumb(self, x, y):
         crumb_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -162,54 +176,8 @@ class GameState:
         """Sum the number of non-zero readings."""
         tot = 0
         for i in readings:
-            if i > 0:
-                tot += 1  # Reduce wall reading (2) to 1.
+            tot += i
         return tot
-
-    def get_sensor_readings(self, x, y, angle):
-        # Set a default distance.
-        distance = 15
-
-        # Get the points, as if the angle is 0.
-        # We use a list because it retains order.
-        sens_points = []
-
-        # Let's try making it a big grid.
-        for j in ([-8, 8, -7, 7, -6, 6, -5, 5, -4, 4, -3, 3, -2, 2, -1, 1, 0]):
-            for i in ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]):
-                if (i == 0 and (j == 0 or j == 1 or j == -1)) or \
-                        (i == 1 and j == 0):
-                    continue  # Skip the dots on top of the car.
-                sens_points.append((x+(distance*j), y+(i*distance)))
-        """
-        # Use far fewer sensors.
-        for i in ([0, 1, 2, 3]):
-            for j in ([-2, 2, -1, 1, 0]):
-                if i == 0 and j == 0:
-                    continue  # Skip the dot on top of the car.
-                sens_points.append((x+(distance*j), y+(i*distance)))
-        """
-
-        # Now rotate those to make it in the front of the car.
-        # And get the observations.
-        sensor_obs = []
-        for point in sens_points:
-            # Get the point location.
-            rotated_p = self.get_rotated_point(x, y, point[0], point[1], angle)
-            # Get the color there.
-            if rotated_p[0] <= 0 or rotated_p[1] <= 0 \
-                    or rotated_p[0] >= width or rotated_p[1] >= height:
-                sensor_obs.append(2)  # Sensor is off the screen.
-            else:
-                obs = screen.get_at(rotated_p)
-                sensor_obs.append(self.get_track_or_not(obs))
-            # Now that we have the color, draw so we can see.
-            if show_sensors:
-                pygame.draw.circle(screen, (255, 255, 255), (rotated_p), 2)
-        if show_sensors:
-            pygame.display.update()
-
-        return sensor_obs
 
     def get_sonar_readings(self, x, y, angle):
         readings = []
@@ -232,8 +200,6 @@ class GameState:
 
         if show_sensors:
             pygame.display.update()
-
-        print(readings)
 
         return readings
 

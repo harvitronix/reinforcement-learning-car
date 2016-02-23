@@ -7,7 +7,7 @@ import os.path
 
 NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = True  # If false, just use arbitrary, pre-selected params.
+TUNING = False  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -22,99 +22,100 @@ def train_net(model, params):
 
     # Just stuff used below.
     max_car_distance = 0
+    car_distance = 0
     t = 0
     data_collect = []
     replay = []  # stores tuples of (S, A, R, S').
 
     loss_log = []
 
+    # Create a new game instance.
+    game_state = carmunk.GameState()
+
+    # Get initial state by doing nothing and getting the state.
+    _, state = game_state.frame_step((2))
+
+    # Run the frames.
     while t < train_frames:
-        # Create a new game instance.
-        game_state = carmunk.GameState()
-        status = 1
-        # Get initial state by doing nothing and getting the state.
-        _, state = game_state.frame_step((2))
 
-        car_distance = 0  # Reset.
+        t += 1
+        car_distance += 1
 
-        while status == 1:
-            t += 1
-            car_distance += 1
+        # Get Q values for each action.
+        qval = model.predict(state, batch_size=1)
+        # Choose an action.
+        if random.random() < epsilon or t < observe:
+            action = np.random.randint(0, 3)  # random
+        else:
+            action = (np.argmax(qval))  # best
 
-            # Get Q values for each action.
-            qval = model.predict(state, batch_size=1)
-            # Choose an action.
-            if random.random() < epsilon or t < observe:
-                action = np.random.randint(0, 3)  # random
-            else:
-                action = (np.argmax(qval))  # best
+        # Take action, observe new state and get our treat.
+        reward, new_state = game_state.frame_step(action)
 
-            # Take action, observe new state and get our treat.
-            reward, new_state = game_state.frame_step(action)
+        # Experience replay storage.
+        replay.append((state, action, reward, new_state))
 
-            # Experience replay storage.
-            replay.append((state, action, reward, new_state))
+        # If we're done observing, start training.
+        if t > observe:
 
-            # If we're done observing, start training.
-            if t > observe:
+            # If we've stored enough in our buffer, pop the oldest.
+            if len(replay) > buffer:
+                replay.pop(0)
 
-                # If we've stored enough in our buffer, pop the oldest.
-                if len(replay) > buffer:
-                    replay.pop(0)
+            # Randomly sample our experience replay memory
+            minibatch = random.sample(replay, batchSize)
 
-                # Randomly sample our experience replay memory
-                minibatch = random.sample(replay, batchSize)
+            # Get training values.
+            X_train, y_train = process_minibatch(minibatch, model)
 
-                # Get training values.
-                X_train, y_train = process_minibatch(minibatch, model)
+            # Train the model on this batch.
+            history = LossHistory()
+            model.fit(
+                X_train, y_train, batch_size=batchSize,
+                nb_epoch=1, verbose=0, callbacks=[history]
+            )
+            loss_log.append(history.losses)
 
-                # Train the model on this batch.
-                history = LossHistory()
-                model.fit(
-                    X_train, y_train, batch_size=batchSize,
-                    nb_epoch=1, verbose=0, callbacks=[history]
-                )
-                loss_log.append(history.losses)
+        # Update the starting state with S'.
+        state = new_state
 
-            # Update the starting state with S'.
-            state = new_state
+        # Decrement epsilon over time.
+        if epsilon > 0.1 and t > observe:
+            epsilon -= (1/train_frames)
 
-            # Decrement epsilon over time.
-            if epsilon > 0.1 and t > observe:
-                epsilon -= (1/train_frames)
+        # We died, so update stuff.
+        if reward == -500:
+            # Log the car's distance at this T.
+            data_collect.append([t, car_distance])
 
-            # We died, so update stuff.
-            if reward == -500:
-                status = 0
-                if car_distance > max_car_distance:
-                    max_car_distance = car_distance
+            # Update max.
+            if car_distance > max_car_distance:
+                max_car_distance = car_distance
 
-                    # Save the model.
-                    if car_distance > 200:
-                        model.save_weights('saved-models/' + filename + '-' +
-                                           str(car_distance) + '.h5',
-                                           overwrite=True)
+            # Output some stuff so we can watch.
+            print("Max: %d at %d\tepsilon %f\t(%d)" %
+                  (max_car_distance, t, epsilon, car_distance))
 
-        # Log the car's distance at this T.
-        data_collect.append([t, car_distance])
-        print("Max: %d at %d\tepsilon %f\t(%d)" %
-              (max_car_distance, t, epsilon, car_distance))
+            # Reset.
+            car_distance = 0
+
+        # Save the model every 25,000 frames.
+        if t % 25000 == 0:
+            model.save_weights('saved-models/' + filename + '-' +
+                               str(t) + '.h5',
+                               overwrite=True)
 
     # Log results after we're done all frames.
     log_results(filename, data_collect, loss_log)
 
-    # Save a last version of the model.
-    model.save_weights('saved-models/' + filename + '-' +
-                       str(t) + '.h5', overwrite=True)
-
 
 def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
-    with open('results/learn_data-' + filename + '.csv', 'w') as data_dump:
+    with open('results/sonar/learn_data-' + filename + '.csv', 'w') as data_dump:
         wr = csv.writer(data_dump)
         wr.writerows(data_collect)
 
-    with open('results/loss_data-' + filename + '.csv', 'w') as lf:
+    with open('results/sonar/loss_data-' + filename + '.csv', 'w') as lf:
         wr = csv.writer(lf)
         for loss_item in loss_log:
             wr.writerow(loss_item)
@@ -162,10 +163,10 @@ def launch_learn(params):
     filename = params_to_filename(params)
     print("Trying %s" % filename)
     # Make sure we haven't run this one.
-    if not os.path.isfile('results/loss_data-' + filename + '.csv'):
+    if not os.path.isfile('results/soner/loss_data-' + filename + '.csv'):
         # Create file so we don't double test when we run multiple
         # instances of the script at the same time.
-        open('results/loss_data-' + filename + '.csv', 'a').close()
+        open('results/sonar/loss_data-' + filename + '.csv', 'a').close()
         print("Starting test.")
         # Train.
         model = neural_net(NUM_SENSORS, params['nn'])
@@ -199,7 +200,7 @@ if __name__ == "__main__":
         nn_param = [512, 512]
         params = {
             "batchSize": 40,
-            "buffer": 50000,
+            "buffer": 10000,
             "nn": nn_param
         }
         model = neural_net(NUM_SENSORS, nn_param)
