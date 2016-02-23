@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import os.path
 
 NUM_SENSORS = 183  # The input size of our NN.
-GAMMA = 0.9  # Forgetting.
+GAMMA = 0.95  # Forgetting.
 TUNING = True  # If false, just use arbitrary, pre-selected params.
 
 
@@ -111,11 +111,11 @@ def train_net(model, params):
 
 def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
-    with open('results/learn_data-' + filename + '.csv', 'w') as data_dump:
+    with open('results/learn_data-' + str(GAMMA) + ' ' + filename + '.csv', 'w') as data_dump:
         wr = csv.writer(data_dump)
         wr.writerows(data_collect)
 
-    with open('results/loss_data-' + filename + '.csv', 'w') as lf:
+    with open('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv', 'w') as lf:
         wr = csv.writer(lf)
         for loss_item in loss_log:
             wr.writerow(loss_item)
@@ -163,10 +163,10 @@ def launch_learn(params):
     filename = params_to_filename(params)
     print("Trying %s" % filename)
     # Make sure we haven't run this one.
-    if not os.path.isfile('results/loss_data-' + filename + '.csv'):
+    if not os.path.isfile('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv'):
         # Create file so we don't double test when we run multiple
         # instances of the script at the same time.
-        open('results/loss_data-' + filename + '.csv', 'a').close()
+        open('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv', 'a').close()
         print("Starting test.")
         # Train.
         model = neural_net(NUM_SENSORS, params['nn'])
@@ -178,10 +178,9 @@ def launch_learn(params):
 if __name__ == "__main__":
     if TUNING:
         param_list = []
-        nn_params = [[20, 20], [164, 150], [256, 256],
-                     [512, 512], [1000, 1000]]
-        batchSizes = [32, 40, 100, 400]
-        buffers = [10000, 50000, 500000]
+        nn_params = [[164, 150], [256, 256]]
+        batchSizes = [40, 400]
+        buffers = [10000, 50000]
 
         for nn_param in nn_params:
             for batchSize in batchSizes:
