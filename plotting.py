@@ -32,7 +32,7 @@ def readable_output(filename):
 
     readable += f_parts[1] + ', ' + f_parts[2] + ' | '
     readable += f_parts[3] + ' | '
-    readable += f_parts[4]
+    readable += f_parts[4].split('.')[0]
 
     return readable
 
