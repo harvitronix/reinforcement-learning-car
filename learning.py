@@ -173,7 +173,7 @@ def launch_learn(params):
     filename = params_to_filename(params)
     print("Trying %s" % filename)
     # Make sure we haven't run this one.
-    if not os.path.isfile('results/soner/loss_data-' + filename + '.csv'):
+    if not os.path.isfile('results/sonar/loss_data-' + filename + '.csv'):
         # Create file so we don't double test when we run multiple
         # instances of the script at the same time.
         open('results/sonar/loss_data-' + filename + '.csv', 'a').close()
