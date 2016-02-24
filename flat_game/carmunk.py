@@ -133,7 +133,7 @@ class GameState:
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
         self.space.step(1./10)
-        pygame.display.flip()
+        # pygame.display.flip()
         clock.tick()
 
         # Set the reward.
