@@ -4,6 +4,7 @@ import random
 import csv
 from nn import neural_net, LossHistory
 import os.path
+import timeit
 
 NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
@@ -34,6 +35,9 @@ def train_net(model, params):
 
     # Get initial state by doing nothing and getting the state.
     _, state = game_state.frame_step((2))
+
+    # Let's time it.
+    start_time = timeit.default_timer()
 
     # Run the frames.
     while t < train_frames:
@@ -92,12 +96,17 @@ def train_net(model, params):
             if car_distance > max_car_distance:
                 max_car_distance = car_distance
 
+            # Time it.
+            tot_time = timeit.default_timer() - start_time
+            fps = car_distance / tot_time
+
             # Output some stuff so we can watch.
-            print("Max: %d at %d\tepsilon %f\t(%d)" %
-                  (max_car_distance, t, epsilon, car_distance))
+            print("Max: %d at %d\tepsilon %f\t(%d)\t%f fps" %
+                  (max_car_distance, t, epsilon, car_distance, fps))
 
             # Reset.
             car_distance = 0
+            start_time = timeit.default_timer()
 
         # Save the model every 25,000 frames.
         if t % 25000 == 0:
