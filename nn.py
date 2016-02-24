@@ -18,7 +18,7 @@ class LossHistory(Callback):
         self.losses.append(logs.get('loss'))
 
 
-def neural_net(num_sensors, params, load=False):
+def neural_net(num_sensors, params, load=''):
     model = Sequential()
 
     # First layer.
@@ -41,7 +41,7 @@ def neural_net(num_sensors, params, load=False):
     model.compile(loss='mse', optimizer=rms)
 
     if load:
-        model.load_weights('saved-models/model-weights-2428.h5')
+        model.load_weights(load)
 
     return model
 
