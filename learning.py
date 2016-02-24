@@ -7,7 +7,7 @@ import os.path
 
 NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = False  # If False, just use arbitrary, pre-selected params.
+TUNING = True  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -181,8 +181,8 @@ if __name__ == "__main__":
         param_list = []
         nn_params = [[20, 20], [164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
-        batchSizes = [32, 40, 100, 400]
-        buffers = [10000, 50000, 500000]
+        batchSizes = [32, 100, 400]
+        buffers = [10000, 50000]
 
         for nn_param in nn_params:
             for batchSize in batchSizes:
