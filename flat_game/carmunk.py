@@ -25,6 +25,7 @@ screen.set_alpha(None)
 show_sensors = False
 draw_screen = False
 
+
 class GameState:
     def __init__(self):
         # Global-ish.
