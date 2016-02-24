@@ -21,9 +21,9 @@ speed_multiplier = 0.02
 # Turn off alpha since we don't use it.
 screen.set_alpha(None)
 
-# Showing sensors slows things down.
+# Showing sensors and redrawing slows things down.
 show_sensors = False
-
+draw_screen = False
 
 class GameState:
     def __init__(self):
@@ -133,7 +133,8 @@ class GameState:
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
         self.space.step(1./10)
-        # pygame.display.flip()
+        if draw_screen:
+            pygame.display.flip()
         clock.tick()
 
         # Set the reward.

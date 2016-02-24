@@ -17,8 +17,9 @@ def play(model):
     # Do nothing to get initial.
     reward, state = game_state.frame_step((2))
 
-    # Change this to "whilte True" to make it never die.
-    while reward != -500:
+    # Change this to "while True" to make it never die.
+    # while reward != -500:
+    while True:
         car_distance += 1
 
         # Choose action.
@@ -34,5 +35,6 @@ def play(model):
     print("Made it %d frames." % car_distance)
 
 if __name__ == "__main__":
-    model = neural_net(NUM_SENSORS, True)
+    saved_model = 'saved-models/20-20-100-50000-250000.h5'
+    model = neural_net(NUM_SENSORS, [20, 20], saved_model)
     play(model)
