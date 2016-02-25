@@ -179,7 +179,7 @@ if __name__ == "__main__":
         param_list = []
         nn_params = [[20, 20], [164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
-        batchSizes = [40, 100, 400]
+        batchSizes = [32, 40, 100, 400]
         buffers = [10000, 50000, 500000]
 
         for nn_param in nn_params:
