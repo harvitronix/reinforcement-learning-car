@@ -2,4 +2,4 @@
 __pycache__
 *.pyc
 *.xlsx
-*.csv
+*.h5

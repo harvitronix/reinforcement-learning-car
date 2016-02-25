@@ -18,6 +18,9 @@ clock = pygame.time.Clock()
 running = True
 speed_multiplier = 0.02
 
+# Turn off alpha since we don't use it.
+screen.set_alpha(None)
+
 # Showing sensors slows things down.
 show_sensors = False
 
@@ -126,7 +129,7 @@ class GameState:
         readings = self.get_sensor_readings(x, y, self.car_body.angle)
         state = np.array([readings])
 
-        # Breadcrumbs totally break its navigation.
+        # Breadcrumbs.
         # if self.num_steps % 10 == 0:
         # self.drop_crumb(x, y)
 
@@ -134,7 +137,7 @@ class GameState:
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
         self.space.step(1./10)
-        pygame.display.flip()
+        #pygame.display.flip()
         clock.tick()
 
         # Set the reward.
