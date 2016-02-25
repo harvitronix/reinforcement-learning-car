@@ -68,8 +68,6 @@ def plot_file(filename, type='loss'):
         else:
             print("%f\t%f\n" % (arr.max(), arr.mean()))
 
-        return  # Skip plotting.
-
         # Plot it.
         plt.clf()  # Clear.
         plt.title(f)
@@ -84,7 +82,6 @@ def plot_file(filename, type='loss'):
             plt.plot(y_av[:-5])
             plt.ylabel('Smoothed Distance')
             plt.ylim(0, 4000)
-            plt.xlim(0, 4000)
 
         plt.savefig(f + '.png', bbox_inches='tight')
 

@@ -7,7 +7,7 @@ import os.path
 
 NUM_SENSORS = 183  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = True  # If false, just use arbitrary, pre-selected params.
+TUNING = False  # If false, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -16,7 +16,7 @@ def train_net(model, params):
 
     observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    train_frames = 250000  # Number of frames to play.
+    train_frames = 1000000  # Number of frames to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -196,10 +196,10 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [512, 512]
+        nn_param = [1000, 1000]
         params = {
             "batchSize": 40,
-            "buffer": 50000,
+            "buffer": 500000,
             "nn": nn_param
         }
         model = neural_net(NUM_SENSORS, nn_param)
