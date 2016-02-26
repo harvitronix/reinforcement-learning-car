@@ -68,15 +68,28 @@ class GameState:
         self.obstacles.append(self.create_obstacle(700, 200, 125))
         self.obstacles.append(self.create_obstacle(600, 600, 35))
 
+        # Create a cat.
+        self.create_cat()
+
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
         c_shape = pymunk.Circle(c_body, r)
-        c_shape.collision_type = 1
         c_shape.elasticity = 1.0
         c_body.position = x, y
         c_shape.color = THECOLORS["blue"]
         self.space.add(c_body, c_shape)
         return c_body
+
+    def create_cat(self):
+        inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
+        self.cat_body = pymunk.Body(1, inertia)
+        self.cat_body.position = 50, height - 100
+        self.cat_shape = pymunk.Circle(self.cat_body, 30)
+        self.cat_shape.color = THECOLORS["orange"]
+        self.cat_shape.elasticity = 1.01
+        self.cat_shape.angle = 0.5
+        direction = Vec2d(1, 0).rotated(self.cat_body.angle)
+        self.space.add(self.cat_body, self.cat_shape)
 
     def create_car(self, x, y, r):
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
@@ -86,7 +99,6 @@ class GameState:
         self.car_shape.color = THECOLORS["green"]
         self.car_shape.elasticity = 1.0
         self.car_body.angle = r
-        self.car_shape.collision_type = 1
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
         self.car_body.apply_impulse(driving_direction)
         self.space.add(self.car_body, self.car_shape)
@@ -97,7 +109,13 @@ class GameState:
         elif action == 1:  # Turn right.
             self.car_body.angle += .2
 
-        self.move_obstacles()
+        # Move obstacles.
+        if self.num_steps % 100 == 0:
+            self.move_obstacles()
+
+        # Move cat.
+        if self.num_steps % 100 == 0:
+            self.move_cat()
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
         self.car_body.velocity = 100 * driving_direction
@@ -129,14 +147,17 @@ class GameState:
         return reward, state
 
     def move_obstacles(self):
-        # Only affect every N frames.
-        if self.num_steps % 100 != 0:
-            return
         # Randomly move obstacles around.
         for obstacle in self.obstacles:
             speed = random.randint(1, 5)
             direction = Vec2d(1, 0).rotated(self.car_body.angle + random.randint(-2, 2))
             obstacle.velocity = speed * direction
+
+    def move_cat(self):
+        speed = random.randint(20, 200)
+        self.cat_body.angle -= random.randint(-2, 2)
+        direction = Vec2d(1, 0).rotated(self.cat_body.angle)
+        self.cat_body.velocity = speed * direction
 
     def car_is_crashed(self, readings):
         if readings[0] == 1 or readings[1] == 1 or readings[2] == 1:
@@ -243,16 +264,10 @@ class GameState:
         return int(new_x), int(new_y)
 
     def get_track_or_not(self, reading):
-        # Check the colors returned and convert to a 1 or a 0.
-        # Reading[0] is 255 when it's red.
-        # Reading[2] is 255 when it's blue.
-        # Reading[1] is 255 when it's green.
-        if reading == THECOLORS['blue']:
-            return 1  # Sensor is on a ball.
-        elif reading == THECOLORS['red']:
-            return 2  # Sensor is on a wall.
-        else:
+        if reading == THECOLORS['black']:
             return 0
+        else:
+            return 1
 
 if __name__ == "__main__":
     game_state = GameState()
