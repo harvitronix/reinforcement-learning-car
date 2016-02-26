@@ -15,15 +15,13 @@ height = 700
 pygame.init()
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
-running = True
-speed_multiplier = 0.02
 
 # Turn off alpha since we don't use it.
 screen.set_alpha(None)
 
 # Showing sensors and redrawing slows things down.
-show_sensors = False
-draw_screen = False
+show_sensors = True
+draw_screen = True
 
 
 class GameState:
@@ -35,19 +33,10 @@ class GameState:
         self.space = pymunk.Space()
         self.space.gravity = pymunk.Vec2d(0., 0.)
 
-        # Create a car at a random corner.
-        corner = random.randint(0, 2)
-        if corner == 0:
-            # Bottom left.
-            self.create_car(100, 100, 0.5)
-        elif corner == 1:
-            # Top left.
-            self.create_car(100, height-100, 5)
-        elif corner == 2:
-            # Top right.
-            self.create_car(width-100, height-100, 3.5)
+        # Create the car.
+        self.create_car(100, 100, 0.5)
 
-        # To increase speed.
+        # Record steps.
         self.num_steps = 0
 
         # Create walls.
@@ -73,16 +62,11 @@ class GameState:
         self.space.add(static)
 
         # Create some obstacles, semi-randomly.
-        if random.random() > 0.5:
-            self.create_obstacle(450, 350, random.randint(75, 125))
-        else:
-            self.create_obstacle(300, 350, random.randint(125, 150))
-        if random.random() > 0.5:
-            self.create_obstacle(750, 200, random.randint(75, 125))
-        else:
-            self.create_obstacle(750, 350, random.randint(50, 100))
-        if random.random() > 0.5:
-            self.create_obstacle(600, 600, random.randint(25, 50))
+        # We'll create three and they'll move around to prevent over-fitting.
+        self.obstacles = []
+        self.obstacles.append(self.create_obstacle(200, 350, 100))
+        self.obstacles.append(self.create_obstacle(700, 200, 125))
+        self.obstacles.append(self.create_obstacle(600, 600, 35))
 
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -92,6 +76,7 @@ class GameState:
         c_body.position = x, y
         c_shape.color = THECOLORS["blue"]
         self.space.add(c_body, c_shape)
+        return c_body
 
     def create_car(self, x, y, r):
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
@@ -111,6 +96,8 @@ class GameState:
             self.car_body.angle -= .2
         elif action == 1:  # Turn right.
             self.car_body.angle += .2
+
+        self.move_obstacles()
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
         self.car_body.velocity = 100 * driving_direction
@@ -140,6 +127,16 @@ class GameState:
         self.num_steps += 1
 
         return reward, state
+
+    def move_obstacles(self):
+        # Only affect every N frames.
+        if self.num_steps % 100 != 0:
+            return
+        # Randomly move obstacles around.
+        for obstacle in self.obstacles:
+            speed = random.randint(1, 5)
+            direction = Vec2d(1, 0).rotated(self.car_body.angle + random.randint(-2, 2))
+            obstacle.velocity = speed * direction
 
     def car_is_crashed(self, readings):
         if readings[0] == 1 or readings[1] == 1 or readings[2] == 1:
