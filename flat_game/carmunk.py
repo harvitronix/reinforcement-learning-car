@@ -123,7 +123,7 @@ class GameState:
             self.recover_from_crash(driving_direction)
         else:
             # Higher readings are better, so return the sum.
-            reward = int(self.sum_readings(readings) / 10)
+            reward = -5 + int(self.sum_readings(readings) / 10)
         self.num_steps += 1
 
         return reward, state
