@@ -86,7 +86,7 @@ class GameState:
         self.cat_body.position = 50, height - 100
         self.cat_shape = pymunk.Circle(self.cat_body, 30)
         self.cat_shape.color = THECOLORS["orange"]
-        self.cat_shape.elasticity = 1.01
+        self.cat_shape.elasticity = 1.0
         self.cat_shape.angle = 0.5
         direction = Vec2d(1, 0).rotated(self.cat_body.angle)
         self.space.add(self.cat_body, self.cat_shape)
@@ -155,7 +155,7 @@ class GameState:
 
     def move_cat(self):
         speed = random.randint(20, 200)
-        self.cat_body.angle -= random.randint(-2, 2)
+        self.cat_body.angle -= random.randint(-1, 1)
         direction = Vec2d(1, 0).rotated(self.cat_body.angle)
         self.cat_body.velocity = speed * direction
 
