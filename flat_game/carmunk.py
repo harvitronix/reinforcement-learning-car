@@ -138,7 +138,6 @@ class GameState:
         else:
             # Higher readings are better, so return the sum.
             reward = int(self.sum_readings(readings) / 10)
-            print(reward)
         self.num_steps += 1
 
         return reward, state
