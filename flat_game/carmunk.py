@@ -153,13 +153,16 @@ class GameState:
         We hit something, so recover.
         """
         while self.crashed:
+            # Go backwards.
             self.car_body.velocity = -100 * driving_direction
             self.crashed = False
             for i in range(10):
-                screen.fill(THECOLORS["red"])
+                self.car_body.angle += .2  # Turn a little.
+                screen.fill(THECOLORS["red"])  # Red is scary!
                 draw(screen, self.space)
                 self.space.step(1./10)
-                pygame.display.flip()
+                if draw_screen:
+                    pygame.display.flip()
                 clock.tick()
 
     def sum_readings(self, readings):
