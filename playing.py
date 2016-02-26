@@ -35,6 +35,6 @@ def play(model):
     print("Made it %d frames." % car_distance)
 
 if __name__ == "__main__":
-    saved_model = 'saved-models/164-150-100-10000-250000.h5'
-    model = neural_net(NUM_SENSORS, [164, 150], saved_model)
+    saved_model = 'saved-models/1000-1000-400-50000-225000.h5'
+    model = neural_net(NUM_SENSORS, [1000, 1000], saved_model)
     play(model)
