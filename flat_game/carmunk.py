@@ -114,7 +114,7 @@ class GameState:
             self.move_obstacles()
 
         # Move cat.
-        if self.num_steps % 100 == 0:
+        if self.num_steps % 5 == 0:
             self.move_cat()
 
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
