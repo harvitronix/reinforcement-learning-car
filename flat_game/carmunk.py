@@ -22,8 +22,8 @@ speed_multiplier = 0.02
 screen.set_alpha(None)
 
 # Showing sensors and redrawing slows things down.
-show_sensors = False
-draw_screen = False
+show_sensors = True
+draw_screen = True
 
 
 class GameState:
@@ -34,7 +34,6 @@ class GameState:
         # Physics stuff.
         self.space = pymunk.Space()
         self.space.gravity = pymunk.Vec2d(0., 0.)
-        self.space.add_collision_handler(1, 1, post_solve=self.car_crashed)
 
         # Create a car at a random corner.
         corner = random.randint(0, 2)
@@ -107,11 +106,6 @@ class GameState:
         self.car_body.apply_impulse(driving_direction)
         self.space.add(self.car_body, self.car_shape)
 
-    def car_crashed(self, space, arbiter):
-        if arbiter.is_first_contact:
-            for contact in arbiter.contacts:
-                self.crashed = True
-
     def frame_step(self, action):
         if action == 0:  # Turn left.
             self.car_body.angle -= .2
@@ -121,15 +115,6 @@ class GameState:
         driving_direction = Vec2d(1, 0).rotated(self.car_body.angle)
         self.car_body.velocity = 100 * driving_direction
 
-        # Get the current location and the readings there.
-        x, y = self.car_body.position
-        readings = self.get_sonar_readings(x, y, self.car_body.angle)
-        state = np.array([readings])
-
-        # Breadcrumbs.
-        # if self.num_steps % 10 == 0:
-        # self.drop_crumb(x, y)
-
         # Update the screen and stuff.
         screen.fill(THECOLORS["black"])
         draw(screen, self.space)
@@ -138,16 +123,30 @@ class GameState:
             pygame.display.flip()
         clock.tick()
 
+        # Get the current location and the readings there.
+        x, y = self.car_body.position
+        readings = self.get_sonar_readings(x, y, self.car_body.angle)
+        state = np.array([readings])
+
         # Set the reward.
-        if self.crashed:
+        # Car crashed when any reading == 1
+        if self.car_is_crashed(readings):
+            self.crashed = True
             reward = -500
             self.recover_from_crash(driving_direction)
+            print('Crashed')
         else:
             # Higher readings are better, so return the sum.
             reward = int(self.sum_readings(readings) / 10)
         self.num_steps += 1
 
         return reward, state
+
+    def car_is_crashed(self, readings):
+        if readings[0] == 1 or readings[1] == 1 or readings[2] == 1:
+            return True
+        else:
+            return False
 
     def recover_from_crash(self, driving_direction):
         """
@@ -160,19 +159,8 @@ class GameState:
                 screen.fill(THECOLORS["red"])
                 draw(screen, self.space)
                 self.space.step(1./10)
-                # pygame.display.flip()
+                pygame.display.flip()
                 clock.tick()
-
-        # Now go forward again to keep going.
-        self.car_body.velocity = 100 * driving_direction
-
-    def drop_crumb(self, x, y):
-        crumb_body = pymunk.Body(pymunk.inf, pymunk.inf)
-        crumb_shape = pymunk.Circle(crumb_body, 2)
-        crumb_body.position = x, y
-        crumb_shape.color = THECOLORS["white"]
-        self.space.add(crumb_body, crumb_shape)
-        # screen.set_at((int(x), int(y)), THECOLORS["white"])
 
     def sum_readings(self, readings):
         """Sum the number of non-zero readings."""
@@ -235,12 +223,13 @@ class GameState:
         return i
 
     def make_sonar_arm(self, x, y):
-        distance = 10  # Default spread.
+        spread = 10  # Default spread.
+        distance = 20  # Gap before first sensor.
         arm_points = []
         # Make an arm. We build it flat because we'll rotate it about the
         # center later.
         for i in range(1, 40):
-            arm_points.append((x+(distance*i), y))
+            arm_points.append((distance + x + (spread * i), y))
 
         return arm_points
 
