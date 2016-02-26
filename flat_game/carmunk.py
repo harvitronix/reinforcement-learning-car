@@ -134,7 +134,6 @@ class GameState:
             self.crashed = True
             reward = -500
             self.recover_from_crash(driving_direction)
-            print('Crashed')
         else:
             # Higher readings are better, so return the sum.
             reward = int(self.sum_readings(readings) / 10)
