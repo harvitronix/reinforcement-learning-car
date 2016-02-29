@@ -8,7 +8,7 @@ import timeit
 
 NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = True  # If False, just use arbitrary, pre-selected params.
+TUNING = False  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -207,10 +207,10 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [40, 40]
+        nn_param = [512, 512]
         params = {
-            "batchSize": 40,
-            "buffer": 10000,
+            "batchSize": 100,
+            "buffer": 50000,
             "nn": nn_param
         }
         model = neural_net(NUM_SENSORS, nn_param)
