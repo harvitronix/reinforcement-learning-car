@@ -188,7 +188,7 @@ def launch_learn(params):
 if __name__ == "__main__":
     if TUNING:
         param_list = []
-        nn_params = [[[164, 150], [256, 256],
+        nn_params = [[164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
         batchSizes = [400]
         buffers = [50000]
