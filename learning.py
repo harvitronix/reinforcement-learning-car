@@ -8,7 +8,7 @@ import timeit
 
 NUM_SENSORS = 3  # The input size of our NN.
 GAMMA = 0.9  # Forgetting.
-TUNING = False  # If False, just use arbitrary, pre-selected params.
+TUNING = True  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
