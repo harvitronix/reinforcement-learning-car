@@ -6,9 +6,11 @@ from nn import neural_net, LossHistory
 import os.path
 import timeit
 
-NUM_SENSORS = 3  # The input size of our NN.
+NUM_FRAMES = 2
+NUM_SENSORS = 3
+NUM_INPUT = NUM_SENSORS * NUM_FRAMES
 GAMMA = 0.9  # Forgetting.
-TUNING = True  # If False, just use arbitrary, pre-selected params.
+TUNING = False  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -35,6 +37,7 @@ def train_net(model, params):
 
     # Get initial state by doing nothing and getting the state.
     _, state = game_state.frame_step((2))
+    state = state_frames(state, np.array([[0, 0, 0]]))
 
     # Let's time it.
     start_time = timeit.default_timer()
@@ -45,16 +48,19 @@ def train_net(model, params):
         t += 1
         car_distance += 1
 
-        # Get Q values for each action.
-        qval = model.predict(state, batch_size=1)
         # Choose an action.
         if random.random() < epsilon or t < observe:
             action = np.random.randint(0, 3)  # random
         else:
+            # Get Q values for each action.
+            qval = model.predict(state, batch_size=1)
             action = (np.argmax(qval))  # best
 
         # Take action, observe new state and get our treat.
         reward, new_state = game_state.frame_step(action)
+
+        # Use multiple frames.
+        new_state = state_frames(new_state, state)
 
         # Experience replay storage.
         replay.append((state, action, reward, new_state))
@@ -119,6 +125,24 @@ def train_net(model, params):
     log_results(filename, data_collect, loss_log)
 
 
+def state_frames(new_state, old_state):
+    """
+    Takes a state returned from the game and turns it into a multi-frame state.
+    Create a new array with the new state and first three of old state,
+    which was the previous frame's new state.
+    """
+    # First, turn them back into arrays to make them easy for my small
+    # mind to comprehend.
+    new_state = new_state.tolist()[0]
+    old_state = old_state.tolist()[0][:NUM_SENSORS * (NUM_FRAMES - 1)]
+
+    # Combine them.
+    combined_state = new_state + old_state
+
+    # Re-numpy them on exit.
+    return np.array([combined_state])
+
+
 def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
     with open('results/sonar/learn_data-' + filename + '.csv', 'w') as data_dump:
@@ -155,7 +179,7 @@ def process_minibatch(minibatch, model):
             update = reward_m
         # Update the value for the action we took.
         y[0][action_m] = update
-        X_train.append(old_state_m.reshape(NUM_SENSORS,))
+        X_train.append(old_state_m.reshape(NUM_INPUT,))
         y_train.append(y.reshape(3,))
 
     X_train = np.array(X_train)
@@ -179,7 +203,7 @@ def launch_learn(params):
         open('results/sonar/loss_data-' + filename + '.csv', 'a').close()
         print("Starting test.")
         # Train.
-        model = neural_net(NUM_SENSORS, params['nn'])
+        model = neural_net(NUM_INPUT, params['nn'])
         train_net(model, params)
     else:
         print("Already tested.")
@@ -207,11 +231,11 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [512, 512]
+        nn_param = [164, 150]
         params = {
             "batchSize": 100,
             "buffer": 50000,
             "nn": nn_param
         }
-        model = neural_net(NUM_SENSORS, nn_param)
+        model = neural_net(NUM_INPUT, nn_param)
         train_net(model, params)
