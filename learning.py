@@ -10,7 +10,7 @@ NUM_FRAMES = 2
 NUM_SENSORS = 3
 NUM_INPUT = NUM_SENSORS * NUM_FRAMES
 GAMMA = 0.9  # Forgetting.
-TUNING = False  # If False, just use arbitrary, pre-selected params.
+TUNING = True  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -145,11 +145,11 @@ def state_frames(new_state, old_state):
 
 def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
-    with open('results/sonar/learn_data-' + filename + '.csv', 'w') as data_dump:
+    with open('results/sonar-frames/learn_data-' + filename + '.csv', 'w') as data_dump:
         wr = csv.writer(data_dump)
         wr.writerows(data_collect)
 
-    with open('results/sonar/loss_data-' + filename + '.csv', 'w') as lf:
+    with open('results/sonar-frames/loss_data-' + filename + '.csv', 'w') as lf:
         wr = csv.writer(lf)
         for loss_item in loss_log:
             wr.writerow(loss_item)
@@ -197,10 +197,10 @@ def launch_learn(params):
     filename = params_to_filename(params)
     print("Trying %s" % filename)
     # Make sure we haven't run this one.
-    if not os.path.isfile('results/sonar/loss_data-' + filename + '.csv'):
+    if not os.path.isfile('results/sonar-frames/loss_data-' + filename + '.csv'):
         # Create file so we don't double test when we run multiple
         # instances of the script at the same time.
-        open('results/sonar/loss_data-' + filename + '.csv', 'a').close()
+        open('results/sonar-frames/loss_data-' + filename + '.csv', 'a').close()
         print("Starting test.")
         # Train.
         model = neural_net(NUM_INPUT, params['nn'])
