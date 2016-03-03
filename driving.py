@@ -7,7 +7,7 @@ from rccar import RCCar
 
 
 def get_model():
-    saved_model = 'saved-models/164-150-400-50000-50000.h5'
+    saved_model = 'saved-models/256-256-400-50000-250000.h5'
     return neural_net(3, [164, 150], saved_model)
 
 
