@@ -16,9 +16,11 @@ def get_action_from_net(readings, model):
 
 
 if __name__ == '__main__':
+    print("Running.")
     model = get_model()
     car = RCCar()
 
+    print("Doing loops.")
     for i in range(10):
         readings = car.get_readings()
         action = get_action_from_net(readings, model)
