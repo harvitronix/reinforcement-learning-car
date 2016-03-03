@@ -90,7 +90,7 @@ def plot_file(filename, type='loss'):
 
 if __name__ == "__main__":
     # Get our loss result files.
-    os.chdir("results/sonar")
+    os.chdir("results/sonar-frames")
 
     for f in glob.glob("learn*.csv"):
         plot_file(f, 'learn')

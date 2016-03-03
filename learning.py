@@ -10,7 +10,7 @@ NUM_FRAMES = 2
 NUM_SENSORS = 3
 NUM_INPUT = NUM_SENSORS * NUM_FRAMES
 GAMMA = 0.9  # Forgetting.
-TUNING = True  # If False, just use arbitrary, pre-selected params.
+TUNING = False  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
