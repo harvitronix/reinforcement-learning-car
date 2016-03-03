@@ -5,7 +5,6 @@ Once a model is learned, use this to play it.
 from flat_game import carmunk
 import numpy as np
 from nn import neural_net
-import random
 
 NUM_SENSORS = 3
 
