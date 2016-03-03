@@ -33,7 +33,7 @@ class RCCar:
         """
         readings = []
         for i in range(6):
-            readings.append(random.randint(4, 100))
+            readings.append(random.randint(4, 14))
         return readings
 
     def recover(self):
@@ -42,7 +42,7 @@ class RCCar:
             self.perform_action(0, True)
 
     def perform_action(self, action, reverse=False):
-        print("Performing an action.")
+        print("Performing an action: %d" % action)
         if action == 0:  # Turn left.
             GPIO.output(13, 1)
         elif action == 2:  # Turn right.
