@@ -20,8 +20,10 @@ if __name__ == '__main__':
     model = get_model()
     car = RCCar()
 
+    input("Net is prepped. Press enter to run.")
+
     print("Doing loops.")
-    for i in range(10):
+    for i in range(50):
         readings = car.get_readings()
         action = get_action_from_net(readings, model)
         car.step(action)
