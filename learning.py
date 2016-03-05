@@ -4,10 +4,13 @@ import random
 import csv
 from nn import neural_net, LossHistory
 import os.path
+import timeit
 
-NUM_SENSORS = 183  # The input size of our NN.
+NUM_FRAMES = 2
+NUM_SENSORS = 3
+NUM_INPUT = NUM_SENSORS * NUM_FRAMES
 GAMMA = 0.9  # Forgetting.
-TUNING = False  # If false, just use arbitrary, pre-selected params.
+TUNING = False  # If False, just use arbitrary, pre-selected params.
 
 
 def train_net(model, params):
@@ -22,99 +25,131 @@ def train_net(model, params):
 
     # Just stuff used below.
     max_car_distance = 0
+    car_distance = 0
     t = 0
     data_collect = []
     replay = []  # stores tuples of (S, A, R, S').
 
     loss_log = []
 
+    # Create a new game instance.
+    game_state = carmunk.GameState()
+
+    # Get initial state by doing nothing and getting the state.
+    _, state = game_state.frame_step((2))
+    state = state_frames(state, np.array([[0, 0, 0]]))
+
+    # Let's time it.
+    start_time = timeit.default_timer()
+
+    # Run the frames.
     while t < train_frames:
-        # Create a new game instance.
-        game_state = carmunk.GameState()
-        status = 1
-        # Get initial state by doing nothing and getting the state.
-        _, state = game_state.frame_step((2))
 
-        car_distance = 0  # Reset.
+        t += 1
+        car_distance += 1
 
-        while status == 1:
-            t += 1
-            car_distance += 1
-
+        # Choose an action.
+        if random.random() < epsilon or t < observe:
+            action = np.random.randint(0, 3)  # random
+        else:
             # Get Q values for each action.
             qval = model.predict(state, batch_size=1)
-            # Choose an action.
-            if random.random() < epsilon or t < observe:
-                action = np.random.randint(0, 3)  # random
-            else:
-                action = (np.argmax(qval))  # best
+            action = (np.argmax(qval))  # best
 
-            # Take action, observe new state and get our treat.
-            reward, new_state = game_state.frame_step(action)
+        # Take action, observe new state and get our treat.
+        reward, new_state = game_state.frame_step(action)
 
-            # Experience replay storage.
-            replay.append((state, action, reward, new_state))
+        # Use multiple frames.
+        new_state = state_frames(new_state, state)
 
-            # If we're done observing, start training.
-            if t > observe:
+        # Experience replay storage.
+        replay.append((state, action, reward, new_state))
 
-                # If we've stored enough in our buffer, pop the oldest.
-                if len(replay) > buffer:
-                    replay.pop(0)
+        # If we're done observing, start training.
+        if t > observe:
 
-                # Randomly sample our experience replay memory
-                minibatch = random.sample(replay, batchSize)
+            # If we've stored enough in our buffer, pop the oldest.
+            if len(replay) > buffer:
+                replay.pop(0)
 
-                # Get training values.
-                X_train, y_train = process_minibatch(minibatch, model)
+            # Randomly sample our experience replay memory
+            minibatch = random.sample(replay, batchSize)
 
-                # Train the model on this batch.
-                history = LossHistory()
-                model.fit(
-                    X_train, y_train, batch_size=batchSize,
-                    nb_epoch=1, verbose=0, callbacks=[history]
-                )
-                loss_log.append(history.losses)
+            # Get training values.
+            X_train, y_train = process_minibatch(minibatch, model)
 
-            # Update the starting state with S'.
-            state = new_state
+            # Train the model on this batch.
+            history = LossHistory()
+            model.fit(
+                X_train, y_train, batch_size=batchSize,
+                nb_epoch=1, verbose=0, callbacks=[history]
+            )
+            loss_log.append(history.losses)
 
-            # Decrement epsilon over time.
-            if epsilon > 0.1 and t > observe:
-                epsilon -= (1/train_frames)
+        # Update the starting state with S'.
+        state = new_state
 
-            # We died, so update stuff.
-            if reward == -500:
-                status = 0
-                if car_distance > max_car_distance:
-                    max_car_distance = car_distance
+        # Decrement epsilon over time.
+        if epsilon > 0.1 and t > observe:
+            epsilon -= (1/train_frames)
 
-                    # Save the model.
-                    if car_distance > 200:
-                        model.save_weights('saved-models/' + filename + '-' +
-                                           str(car_distance) + '.h5',
-                                           overwrite=True)
+        # We died, so update stuff.
+        if reward == -500:
+            # Log the car's distance at this T.
+            data_collect.append([t, car_distance])
 
-        # Log the car's distance at this T.
-        data_collect.append([t, car_distance])
-        print("Max: %d at %d\tepsilon %f\t(%d)" %
-              (max_car_distance, t, epsilon, car_distance))
+            # Update max.
+            if car_distance > max_car_distance:
+                max_car_distance = car_distance
+
+            # Time it.
+            tot_time = timeit.default_timer() - start_time
+            fps = car_distance / tot_time
+
+            # Output some stuff so we can watch.
+            print("Max: %d at %d\tepsilon %f\t(%d)\t%f fps" %
+                  (max_car_distance, t, epsilon, car_distance, fps))
+
+            # Reset.
+            car_distance = 0
+            start_time = timeit.default_timer()
+
+        # Save the model every 25,000 frames.
+        if t % 25000 == 0:
+            model.save_weights('saved-models/' + filename + '-' +
+                               str(t) + '.h5',
+                               overwrite=True)
+            print("Saving model %s - %d" % (filename, t))
 
     # Log results after we're done all frames.
     log_results(filename, data_collect, loss_log)
 
-    # Save a last version of the model.
-    model.save_weights('saved-models/' + filename + '-' +
-                       str(t) + '.h5', overwrite=True)
+
+def state_frames(new_state, old_state):
+    """
+    Takes a state returned from the game and turns it into a multi-frame state.
+    Create a new array with the new state and first three of old state,
+    which was the previous frame's new state.
+    """
+    # First, turn them back into arrays to make them easy for my small
+    # mind to comprehend.
+    new_state = new_state.tolist()[0]
+    old_state = old_state.tolist()[0][:NUM_SENSORS * (NUM_FRAMES - 1)]
+
+    # Combine them.
+    combined_state = new_state + old_state
+
+    # Re-numpy them on exit.
+    return np.array([combined_state])
 
 
 def log_results(filename, data_collect, loss_log):
     # Save the results to a file so we can graph it later.
-    with open('results/learn_data-' + str(GAMMA) + ' ' + filename + '.csv', 'w') as data_dump:
+    with open('results/sonar-frames/learn_data-' + filename + '.csv', 'w') as data_dump:
         wr = csv.writer(data_dump)
         wr.writerows(data_collect)
 
-    with open('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv', 'w') as lf:
+    with open('results/sonar-frames/loss_data-' + filename + '.csv', 'w') as lf:
         wr = csv.writer(lf)
         for loss_item in loss_log:
             wr.writerow(loss_item)
@@ -144,7 +179,7 @@ def process_minibatch(minibatch, model):
             update = reward_m
         # Update the value for the action we took.
         y[0][action_m] = update
-        X_train.append(old_state_m.reshape(NUM_SENSORS,))
+        X_train.append(old_state_m.reshape(NUM_INPUT,))
         y_train.append(y.reshape(3,))
 
     X_train = np.array(X_train)
@@ -162,13 +197,13 @@ def launch_learn(params):
     filename = params_to_filename(params)
     print("Trying %s" % filename)
     # Make sure we haven't run this one.
-    if not os.path.isfile('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv'):
+    if not os.path.isfile('results/sonar-frames/loss_data-' + filename + '.csv'):
         # Create file so we don't double test when we run multiple
         # instances of the script at the same time.
-        open('results/loss_data-' + str(GAMMA) + ' ' + filename + '.csv', 'a').close()
+        open('results/sonar-frames/loss_data-' + filename + '.csv', 'a').close()
         print("Starting test.")
         # Train.
-        model = neural_net(NUM_SENSORS, params['nn'])
+        model = neural_net(NUM_INPUT, params['nn'])
         train_net(model, params)
     else:
         print("Already tested.")
@@ -177,10 +212,10 @@ def launch_learn(params):
 if __name__ == "__main__":
     if TUNING:
         param_list = []
-        nn_params = [[20, 20], [164, 150], [256, 256],
+        nn_params = [[164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
-        batchSizes = [32, 40, 100, 400]
-        buffers = [10000, 50000, 500000]
+        batchSizes = [400]
+        buffers = [50000]
 
         for nn_param in nn_params:
             for batchSize in batchSizes:
@@ -196,11 +231,11 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [1000, 1000]
+        nn_param = [164, 150]
         params = {
-            "batchSize": 40,
-            "buffer": 500000,
+            "batchSize": 100,
+            "buffer": 50000,
             "nn": nn_param
         }
-        model = neural_net(NUM_SENSORS, nn_param)
+        model = neural_net(NUM_INPUT, nn_param)
         train_net(model, params)
