@@ -7,7 +7,7 @@ from rccar import RCCar
 
 
 def get_model():
-    saved_model = 'saved-models/256-256-400-50000-250000.h5'
+    saved_model = 'saved-models-driving/256-256-400-50000-250000.h5'
     return neural_net(3, [164, 150], saved_model)
 
 
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     print("Doing loops.")
     for i in range(10):
         readings = car.get_readings()
+        print(readings)
         action = get_action_from_net(readings, model)
         car.step(action)
 
