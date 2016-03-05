@@ -7,7 +7,7 @@ http://ilab.cs.byu.edu/python/socket/echoserver.html
 """
 
 import socket
-import Sensors
+from sensing import Sensors
 
 host = ''
 port = 8888
