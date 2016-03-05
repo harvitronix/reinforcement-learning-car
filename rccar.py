@@ -5,6 +5,7 @@ version of the carmunk simulation.
 import RPi.GPIO as GPIO
 import time
 import random
+import numpy as np
 
 
 class RCCar:
@@ -34,7 +35,7 @@ class RCCar:
         readings = []
         for i in range(3):
             readings.append(random.randint(4, 14))
-        return readings
+        return np.array([readings])
 
     def recover(self):
         # Back up and turn to the left to try to get away from the obstacle.
