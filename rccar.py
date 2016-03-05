@@ -19,7 +19,7 @@ STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
 # Used for getting sensor readings.
 HOST = '192.168.2.12'
-PORT = 8889
+PORT = 8888
 SIZE = 1024
 
 
