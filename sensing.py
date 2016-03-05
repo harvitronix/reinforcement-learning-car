@@ -62,7 +62,7 @@ class Sensors:
 
 if __name__ == '__main__':
     sensors = Sensors()
-    for i in range(10):
+    for i in range(100):
         print(sensors.get_readings())
-        time.sleep(2)
+        time.sleep(1)
     sensors.cleanup_gpio()
