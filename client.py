@@ -7,12 +7,17 @@ import socket
 import numpy as np
 
 HOST = '192.168.2.12'
-PORT = 8889
+PORT = 8888
 SIZE = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 s.connect((HOST, PORT))
 readings = s.recv(SIZE)
 s.close()
-readings = readings.split(',')
+
+# Turn our weird stringed list into an actual list.
+readings = readings.decode('utf-8')
+readings = readings[1:-1]
+readings = readings.split(', ')
+readings = [float(i) for i in readings]
 print(np.array([readings]))

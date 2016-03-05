@@ -54,12 +54,17 @@ class RCCar:
 
     def get_readings(self):
         """
-        TODO!
+        Call our server on the other Pi to get the readings.
         """
         self.s.connect((HOST, PORT))
         readings = self.s.recv(SIZE)
         self.s.close()
-        readings = readings.split(',')
+
+        # Turn our crazy string into an actual list.
+        readings = readings.decode('utf-8')
+        readings = readings[1:-1]
+        readings = readings.split(', ')
+        readings = [float(i) for i in readings]
         return np.array([readings])
 
     def recover(self):
