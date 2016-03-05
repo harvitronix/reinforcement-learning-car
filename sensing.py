@@ -33,13 +33,15 @@ class Sensors:
 
             # Do it three times to reduce anomolies.
             for i in range(3):
+                iterations = 0
+
                 # Blip.
                 GPIO.output(sensor[0], True)
                 time.sleep(0.00001)
                 GPIO.output(sensor[0], False)
 
                 # Read.
-                while GPIO.input(sensor[1]) == 0:
+                while GPIO.input(sensor[1]) == 0 and iterations < 10000:
                     pulse_start = time.time()
 
                 while GPIO.input(sensor[1]) == 1:
@@ -48,11 +50,10 @@ class Sensors:
                 # Turn time into distance.
                 pulse_duration = pulse_end - pulse_start
                 distance = pulse_duration * 17150
-                distance = round(distance, 2)
 
                 sensor_total += distance
 
-            readings.append(distance / 3)
+            readings.append(round(distance / 3, 2))
 
         return readings
 
