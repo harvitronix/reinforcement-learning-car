@@ -63,7 +63,7 @@ class RCCar:
             GPIO.output(12, 1)
 
         # Pause...
-        time.sleep(0.01)
+        time.sleep(0.1)
 
         # Now turn them off.
         GPIO.output(11, 0)
