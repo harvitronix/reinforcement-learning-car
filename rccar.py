@@ -35,6 +35,7 @@ class RCCar:
         readings = []
         for i in range(3):
             readings.append(random.randint(4, 14))
+        print(readings)
         return np.array([readings])
 
     def recover(self):
