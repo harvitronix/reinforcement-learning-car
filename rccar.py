@@ -7,21 +7,29 @@ import time
 import random
 import numpy as np
 
+# Constants
+LEFT_PIN = 13
+RIGHT_PIN = 15
+FORWARD_PIN = 12
+BACKWARD_PIN = 11
+ITER_PAUSE = 1  # Time to pause between actions for observation.
+MOVE_DURATION = 0.15  # Time to apply forward/backward force.
+STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
 class RCCar:
     def __init__(self):
         print("Setting up GPIO pins.")
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(11, GPIO.OUT)  # Backwards.
-        GPIO.setup(12, GPIO.OUT)  # Forwards.
-        GPIO.setup(13, GPIO.OUT)  # Left.
-        GPIO.setup(15, GPIO.OUT)  # Right.
+        GPIO.setup(BACKWARD_PIN, GPIO.OUT)  # Backwards.
+        GPIO.setup(FORWARD_PIN, GPIO.OUT)  # Forwards.
+        GPIO.setup(LEFT_PIN, GPIO.OUT)  # Left.
+        GPIO.setup(RIGHT_PIN, GPIO.OUT)  # Right.
 
         # Just to make sure.
-        GPIO.output(11, 0)
-        GPIO.output(12, 0)
-        GPIO.output(13, 0)
-        GPIO.output(15, 0)
+        GPIO.output(BACKWARD_PIN, 0)
+        GPIO.output(FORWARD_PIN, 0)
+        GPIO.output(LEFT_PIN, 0)
+        GPIO.output(RIGHT_PIN, 0)
 
     def step(self, action):
         self.perform_action(action)
@@ -52,30 +60,30 @@ class RCCar:
     def perform_action(self, action, reverse=False):
         print("Performing an action: %d" % action)
         if action == 0:  # Turn left.
-            GPIO.output(13, 1)
+            GPIO.output(LEFT_PIN, 1)
         elif action == 2:  # Turn right.
-            GPIO.output(15, 1)
+            GPIO.output(RIGHT_PIN, 1)
 
         # Now that the wheel is turned (or not), move a bit.
         if reverse:
-            GPIO.output(11, 1)
+            GPIO.output(BACKWARD_PIN, 1)
         else:
-            GPIO.output(12, 1)
+            GPIO.output(FORWARD_PIN, 1)
 
         # Pause...
-        time.sleep(0.15)
+        time.sleep(MOVE_DURATION)
 
         # Now turn off the power.
-        GPIO.output(11, 0)
-        GPIO.output(12, 0)
+        GPIO.output(BACKWARD_PIN, 0)
+        GPIO.output(FORWARD_PIN, 0)
 
         # Wait a bit longer before turning off the direction.
-        time.sleep(0.5)
-        GPIO.output(13, 0)
-        GPIO.output(15, 0)
+        time.sleep(STEERING_DELAY)
+        GPIO.output(LEFT_PIN, 0)
+        GPIO.output(RIGHT_PIN, 0)
 
         # Pause just to see what's going on.
-        time.sleep(1)
+        time.sleep(ITER_PAUSE)
 
     def car_is_crashed(self, readings):
         return False  # Debug.
