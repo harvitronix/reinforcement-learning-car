@@ -39,7 +39,7 @@ class RCCar:
 
     def recover(self):
         # Back up and turn to the left to try to get away from the obstacle.
-        for i in range(10):
+        for i in range(4):
             self.perform_action(0, True)
 
     def perform_action(self, action, reverse=False):
