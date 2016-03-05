@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 import time
 import random
 import numpy as np
+import socket
 
 # Constants
 LEFT_PIN = 13
@@ -15,6 +16,12 @@ BACKWARD_PIN = 11
 ITER_PAUSE = 1  # Time to pause between actions for observation.
 MOVE_DURATION = 0.15  # Time to apply forward/backward force.
 STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
+
+# Used for getting sensor readings.
+HOST = '192.168.2.12'
+PORT = 8889
+SIZE = 1024
+
 
 class RCCar:
     def __init__(self):
@@ -31,6 +38,9 @@ class RCCar:
         GPIO.output(LEFT_PIN, 0)
         GPIO.output(RIGHT_PIN, 0)
 
+        # Sensors.
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     def step(self, action):
         self.perform_action(action)
 
@@ -46,10 +56,10 @@ class RCCar:
         """
         TODO!
         """
-        readings = []
-        for i in range(3):
-            readings.append(random.randint(4, 14))
-        print(readings)
+        self.s.connect((HOST, PORT))
+        readings = self.s.recv(SIZE)
+        self.s.close()
+        readings = readings.split(',')
         return np.array([readings])
 
     def recover(self):

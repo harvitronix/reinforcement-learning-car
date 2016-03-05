@@ -211,7 +211,6 @@ class GameState:
         if show_sensors:
             pygame.display.update()
 
-        print(readings)
         return readings
 
     def get_arm_distance(self, arm, x, y, angle, offset):
