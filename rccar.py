@@ -17,6 +17,12 @@ class RCCar:
         GPIO.setup(13, GPIO.OUT)  # Left.
         GPIO.setup(15, GPIO.OUT)  # Right.
 
+        # Just to make sure.
+        GPIO.output(11, 0)
+        GPIO.output(12, 0)
+        GPIO.output(15, 0)
+        GPIO.output(15, 0)
+
     def step(self, action):
         self.perform_action(action)
 
@@ -57,7 +63,7 @@ class RCCar:
             GPIO.output(12, 1)
 
         # Pause...
-        time.sleep(0.2)
+        time.sleep(0.01)
 
         # Now turn them off.
         GPIO.output(11, 0)
