@@ -66,7 +66,7 @@ class RCCar:
 
     def car_is_crashed(self, readings):
         # If any of the readings show less than 5cm, we're crashed.
-        for reading in readings:
+        for reading in readings[0]:
             if reading < 5:
                 return True
         return False
