@@ -32,7 +32,7 @@ class RCCar:
         TODO!
         """
         readings = []
-        for i in range(6):
+        for i in range(3):
             readings.append(random.randint(4, 14))
         return readings
 
