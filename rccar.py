@@ -63,15 +63,18 @@ class RCCar:
             GPIO.output(12, 1)
 
         # Pause...
-        time.sleep(0.1)
+        time.sleep(0.15)
 
-        # Now turn them off.
+        # Now turn off the power.
         GPIO.output(11, 0)
         GPIO.output(12, 0)
+
+        # Wait a bit longer before turning off the direction.
+        time.sleep(0.5)
         GPIO.output(13, 0)
         GPIO.output(15, 0)
 
-        # Pause...
+        # Pause just to see what's going on.
         time.sleep(1)
 
     def car_is_crashed(self, readings):
