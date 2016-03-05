@@ -20,7 +20,7 @@ class RCCar:
         # Just to make sure.
         GPIO.output(11, 0)
         GPIO.output(12, 0)
-        GPIO.output(15, 0)
+        GPIO.output(13, 0)
         GPIO.output(15, 0)
 
     def step(self, action):
@@ -68,7 +68,7 @@ class RCCar:
         # Now turn them off.
         GPIO.output(11, 0)
         GPIO.output(12, 0)
-        GPIO.output(15, 0)
+        GPIO.output(13, 0)
         GPIO.output(15, 0)
 
     def car_is_crashed(self, readings):
