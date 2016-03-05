@@ -29,24 +29,30 @@ class Sensors:
     def get_readings(self):
         readings = []
         for sensor in PINS:
-            # Blip.
-            GPIO.output(sensor[0], True)
-            time.sleep(0.00001)
-            GPIO.output(sensor[0], False)
+            sensor_total = 0
 
-            # Read.
-            while GPIO.input(sensor[1]) == 0:
-                pulse_start = time.time()
+            # Do it three times to reduce anomolies.
+            for i in range(3):
+                # Blip.
+                GPIO.output(sensor[0], True)
+                time.sleep(0.00001)
+                GPIO.output(sensor[0], False)
 
-            while GPIO.input(sensor[1]) == 1:
-                pulse_end = time.time()
+                # Read.
+                while GPIO.input(sensor[1]) == 0:
+                    pulse_start = time.time()
 
-            # Turn time into distance.
-            pulse_duration = pulse_end - pulse_start
-            distance = pulse_duration * 17150
-            distance = round(distance, 2)
+                while GPIO.input(sensor[1]) == 1:
+                    pulse_end = time.time()
 
-            readings.append(distance)
+                # Turn time into distance.
+                pulse_duration = pulse_end - pulse_start
+                distance = pulse_duration * 17150
+                distance = round(distance, 2)
+
+                sensor_total += distance
+
+            readings.append(distance / 3)
 
         return readings
 
