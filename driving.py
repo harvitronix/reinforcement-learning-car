@@ -25,8 +25,7 @@ if __name__ == '__main__':
     print("Doing loops.")
     for i in range(50):
         readings = car.get_readings()
-        if readings:
-            action = get_action_from_net(readings, model)
-            car.step(action)
+        action = get_action_from_net(readings, model)
+        car.step(action)
 
     car.cleanup_gpio()
