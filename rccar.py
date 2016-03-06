@@ -101,7 +101,6 @@ class RCCar:
         time.sleep(ITER_PAUSE)
 
     def car_is_crashed(self, readings):
-        return False  # Debug.
         # If any of the readings show less than 5cm, we're crashed.
         for reading in readings[0]:
             if reading < 5:
