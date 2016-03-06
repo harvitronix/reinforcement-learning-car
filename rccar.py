@@ -38,10 +38,6 @@ class RCCar:
         GPIO.output(LEFT_PIN, 0)
         GPIO.output(RIGHT_PIN, 0)
 
-        # Sensors.
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((HOST, PORT))
-
     def step(self, action):
         self.perform_action(action)
 
@@ -57,7 +53,11 @@ class RCCar:
         """
         Call our server on the other Pi to get the readings.
         """
-        readings = self.s.recv(SIZE)
+        # Connect to our server to get the reading.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        readings = s.recv(SIZE)
+        s.close()
 
         # Turn our crazy string into an actual list.
         readings = readings.decode('utf-8')
