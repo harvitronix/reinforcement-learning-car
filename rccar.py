@@ -63,6 +63,7 @@ class RCCar:
         readings = readings.decode('utf-8')
         readings = readings[1:-1]
         readings = readings.split(', ')
+        print(readings)
         readings = [float(i) for i in readings]
         print(readings)
         return np.array([readings])
