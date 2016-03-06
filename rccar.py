@@ -40,6 +40,7 @@ class RCCar:
 
         # Sensors.
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((HOST, PORT))
 
     def step(self, action):
         self.perform_action(action)
@@ -56,15 +57,14 @@ class RCCar:
         """
         Call our server on the other Pi to get the readings.
         """
-        self.s.connect((HOST, PORT))
         readings = self.s.recv(SIZE)
-        self.s.close()
 
         # Turn our crazy string into an actual list.
         readings = readings.decode('utf-8')
         readings = readings[1:-1]
         readings = readings.split(', ')
         readings = [float(i) for i in readings]
+        print(readings)
         return np.array([readings])
 
     def recover(self):
