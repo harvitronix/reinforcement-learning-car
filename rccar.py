@@ -59,13 +59,16 @@ class RCCar:
         readings = s.recv(SIZE)
         s.close()
 
-        # Turn our crazy string into an actual list.
-        readings = readings.decode('utf-8')
-        readings = readings[1:-1]
-        readings = readings.split(', ')
-        print(readings)
-        readings = [float(i) for i in readings]
-        return np.array([readings])
+        if readings:
+            # Turn our crazy string into an actual list.
+            readings = readings.decode('utf-8')
+            readings = readings[1:-1]
+            readings = readings.split(', ')
+            print(readings)
+            readings = [float(i) for i in readings]
+            return np.array([readings])
+        else:
+            return False
 
     def recover(self):
         # Back up and turn to the left to try to get away from the obstacle.
@@ -102,9 +105,10 @@ class RCCar:
 
     def car_is_crashed(self, readings):
         # If any of the readings show less than 5cm, we're crashed.
-        for reading in readings[0]:
-            if reading < 5:
-                return True
+        if readings:
+            for reading in readings[0]:
+                if reading < 5:
+                    return True
         return False
 
 
