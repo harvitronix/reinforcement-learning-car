@@ -4,7 +4,6 @@ version of the carmunk simulation.
 """
 import RPi.GPIO as GPIO
 import time
-import random
 import numpy as np
 import socket
 
@@ -50,7 +49,6 @@ class RCCar:
         GPIO.cleanup()
 
     def get_readings(self):
-        print("Getting readings.")
         """
         Call our server on the other Pi to get the readings.
         """
@@ -59,12 +57,12 @@ class RCCar:
         s.connect((HOST, PORT))
         readings = s.recv(SIZE)
         s.close()
-        print(readings)
+
         # Turn our crazy string into an actual list.
         readings = readings.decode('utf-8')
         readings = readings[1:-1]
         readings = readings.split(', ')
-        print(readings)
+
         readings = [float(i) for i in readings]
         return np.array([readings])
 

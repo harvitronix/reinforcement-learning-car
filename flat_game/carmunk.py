@@ -10,7 +10,7 @@ from pymunk.vec2d import Vec2d
 from pymunk.pygame_util import draw
 
 # PyGame init
-width = 1000
+width = 1400
 height = 700
 pygame.init()
 screen = pygame.display.set_mode((width, height))
@@ -88,7 +88,6 @@ class GameState:
         self.cat_shape.color = THECOLORS["orange"]
         self.cat_shape.elasticity = 1.0
         self.cat_shape.angle = 0.5
-        direction = Vec2d(1, 0).rotated(self.cat_body.angle)
         self.space.add(self.cat_body, self.cat_shape)
 
     def create_car(self, x, y, r):
@@ -150,7 +149,9 @@ class GameState:
         # Randomly move obstacles around.
         for obstacle in self.obstacles:
             speed = random.randint(1, 5)
-            direction = Vec2d(1, 0).rotated(self.car_body.angle + random.randint(-2, 2))
+            direction = Vec2d(1, 0).rotated(
+                self.car_body.angle + random.randint(-2, 2)
+            )
             obstacle.velocity = speed * direction
 
     def move_cat(self):
@@ -160,10 +161,10 @@ class GameState:
         self.cat_body.velocity = speed * direction
 
     def car_is_crashed(self, readings):
-        if readings[0] == 1 or readings[1] == 1 or readings[2] == 1:
-            return True
-        else:
-            return False
+        for reading in readings:
+            if reading < 5:
+                return True
+        return False
 
     def recover_from_crash(self, driving_direction):
         """
