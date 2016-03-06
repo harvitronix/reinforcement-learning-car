@@ -65,7 +65,6 @@ class RCCar:
         readings = readings.split(', ')
         print(readings)
         readings = [float(i) for i in readings]
-        print(readings)
         return np.array([readings])
 
     def recover(self):

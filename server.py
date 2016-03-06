@@ -24,6 +24,8 @@ while 1:
     client, address = s.accept()
     data = str(sensors.get_readings())
     try:
+        print("Sending: ")
+        print(data)
         client.send(data.encode(encoding='utf_8'))
     except:
         print("Couldn't send data.")
