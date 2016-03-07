@@ -103,9 +103,9 @@ class GameState:
         self.space.add(self.car_body, self.car_shape)
 
     def frame_step(self, action):
-        if action == 0:  # Turn left.
+        if action == 0:  # Turn right.
             self.car_body.angle -= .2
-        elif action == 1:  # Turn right.
+        elif action == 1:  # Turn left.
             self.car_body.angle += .2
 
         # Move obstacles.

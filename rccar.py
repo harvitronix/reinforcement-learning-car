@@ -80,9 +80,9 @@ class RCCar:
 
     def perform_action(self, action, reverse=False):
         print("Performing an action: %d" % action)
-        if action == 0:  # Turn left.
+        if action == 1:  # Turn left.
             GPIO.output(LEFT_PIN, 1)
-        elif action == 1:  # Turn right.
+        elif action == 0:  # Turn right.
             GPIO.output(RIGHT_PIN, 1)
 
         # Now that the wheel is turned (or not), move a bit.
