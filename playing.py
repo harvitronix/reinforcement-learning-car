@@ -22,9 +22,7 @@ def play(model):
         car_distance += 1
 
         # Choose action.
-        print(state)
         action = (np.argmax(model.predict(state, batch_size=1)))
-        print(action)
 
         # Take action.
         _, state = game_state.frame_step(action)

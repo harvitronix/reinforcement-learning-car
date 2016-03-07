@@ -12,7 +12,7 @@ LEFT_PIN = 13
 RIGHT_PIN = 15
 FORWARD_PIN = 12
 BACKWARD_PIN = 11
-ITER_PAUSE = 1  # Time to pause between actions for observation.
+ITER_PAUSE = 0.5  # Time to pause between actions for observation.
 MOVE_DURATION = 0.15  # Time to apply forward/backward force.
 STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
@@ -109,7 +109,7 @@ class RCCar:
     def car_is_crashed(self, readings):
         # If any of the readings show less than 5cm, we're crashed.
         for reading in readings[0]:
-            if reading < 5:
+            if reading < 3:
                 return True
         return False
 
