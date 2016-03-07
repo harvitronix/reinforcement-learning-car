@@ -64,18 +64,25 @@ class RCCar:
         readings = readings.split(', ')
 
         readings = [float(i) for i in readings]
-        return np.array([readings])
+
+        # The max value in training is 39, so let's reduce to see
+        # what happens.
+        reduced_readings = []
+        for reading in readings:
+            if reading > 39:
+                reading = 39
+            reduced_readings.append(reading)
+        return np.array([reduced_readings])
 
     def recover(self):
         # Back up and turn to the left to try to get away from the obstacle.
-        for i in range(4):
-            self.perform_action(0, True)
+        self.perform_action(0, True)
 
     def perform_action(self, action, reverse=False):
         print("Performing an action: %d" % action)
         if action == 0:  # Turn left.
             GPIO.output(LEFT_PIN, 1)
-        elif action == 2:  # Turn right.
+        elif action == 1:  # Turn right.
             GPIO.output(RIGHT_PIN, 1)
 
         # Now that the wheel is turned (or not), move a bit.

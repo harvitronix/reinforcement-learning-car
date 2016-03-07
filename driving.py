@@ -25,6 +25,7 @@ if __name__ == '__main__':
     print("Doing loops.")
     for i in range(50):
         readings = car.get_readings()
+        print(readings)
         action = get_action_from_net(readings, model)
         car.step(action)
 
