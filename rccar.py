@@ -63,7 +63,7 @@ class RCCar:
         readings = readings[1:-1]
         readings = readings.split(', ')
 
-        readings = [int(i) for i in readings]
+        readings = [int(float(i)) for i in readings]
 
         # The max value in training is 39, so let's reduce to see
         # what happens.
