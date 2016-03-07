@@ -43,6 +43,7 @@ class Sensors:
                 # Read.
                 while GPIO.input(sensor[1]) == 0 and iterations < 10000:
                     pulse_start = time.time()
+                    iterations += 1
 
                 while GPIO.input(sensor[1]) == 1:
                     pulse_end = time.time()
