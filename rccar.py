@@ -72,6 +72,7 @@ class RCCar:
             if reading > 39:
                 reading = 39
             reduced_readings.append(reading)
+        print(reduced_readings)
         return np.array([reduced_readings])
 
     def recover(self):
