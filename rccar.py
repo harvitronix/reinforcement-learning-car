@@ -13,7 +13,7 @@ RIGHT_PIN = 15
 FORWARD_PIN = 12
 BACKWARD_PIN = 11
 ITER_PAUSE = 0.5  # Time to pause between actions for observation.
-MOVE_DURATION = 0.15  # Time to apply forward/backward force.
+MOVE_DURATION = 0.3  # Time to apply forward/backward force.
 STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
 # Used for getting sensor readings.
