@@ -83,12 +83,17 @@ class RCCar:
         print("Performing an action: %d" % action)
         if action == 1:  # Turn left.
             GPIO.output(LEFT_PIN, 1)
+            print("Turning left.")
         elif action == 0:  # Turn right.
             GPIO.output(RIGHT_PIN, 1)
+            print("Turning right.")
+        else:
+            print("Going straight.")
 
         # Now that the wheel is turned (or not), move a bit.
         if reverse:
             GPIO.output(BACKWARD_PIN, 1)
+            print("Reversing.")
         else:
             GPIO.output(FORWARD_PIN, 1)
 
