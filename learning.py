@@ -6,9 +6,7 @@ from nn import neural_net, LossHistory
 import os.path
 import timeit
 
-NUM_FRAMES = 2
-NUM_SENSORS = 3
-NUM_INPUT = NUM_SENSORS * NUM_FRAMES
+NUM_INPUT = 3
 GAMMA = 0.9  # Forgetting.
 TUNING = False  # If False, just use arbitrary, pre-selected params.
 
@@ -37,7 +35,6 @@ def train_net(model, params):
 
     # Get initial state by doing nothing and getting the state.
     _, state = game_state.frame_step((2))
-    state = state_frames(state, np.array([[0, 0, 0]]))
 
     # Let's time it.
     start_time = timeit.default_timer()
@@ -58,9 +55,6 @@ def train_net(model, params):
 
         # Take action, observe new state and get our treat.
         reward, new_state = game_state.frame_step(action)
-
-        # Use multiple frames.
-        new_state = state_frames(new_state, state)
 
         # Experience replay storage.
         replay.append((state, action, reward, new_state))
@@ -123,24 +117,6 @@ def train_net(model, params):
 
     # Log results after we're done all frames.
     log_results(filename, data_collect, loss_log)
-
-
-def state_frames(new_state, old_state):
-    """
-    Takes a state returned from the game and turns it into a multi-frame state.
-    Create a new array with the new state and first three of old state,
-    which was the previous frame's new state.
-    """
-    # First, turn them back into arrays to make them easy for my small
-    # mind to comprehend.
-    new_state = new_state.tolist()[0]
-    old_state = old_state.tolist()[0][:NUM_SENSORS * (NUM_FRAMES - 1)]
-
-    # Combine them.
-    combined_state = new_state + old_state
-
-    # Re-numpy them on exit.
-    return np.array([combined_state])
 
 
 def log_results(filename, data_collect, loss_log):
@@ -214,8 +190,8 @@ if __name__ == "__main__":
         param_list = []
         nn_params = [[164, 150], [256, 256],
                      [512, 512], [1000, 1000]]
-        batchSizes = [400]
-        buffers = [50000]
+        batchSizes = [40, 100, 400]
+        buffers = [10000, 50000]
 
         for nn_param in nn_params:
             for batchSize in batchSizes:

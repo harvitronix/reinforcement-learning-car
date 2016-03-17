@@ -29,7 +29,7 @@ Full writeups that pertain to version 1.0.0 can be found here:
 
 ### Training
 
-First, you need to train a model. This will save weights to the `saved-models` folder. You can do this by running:
+First, you need to train a model. This will save weights to the `saved-models` folder. *You may need to create this folder before running*. You can train the model by running:
 
 `python3 learning.py`
 
