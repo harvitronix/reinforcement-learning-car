@@ -12,7 +12,7 @@ LEFT_PIN = 13
 RIGHT_PIN = 15
 FORWARD_PIN = 12
 BACKWARD_PIN = 11
-ITER_PAUSE = 0.1  # Time to pause between actions for observation.
+ITER_PAUSE = 0  # Time to pause between actions for observation.
 MOVE_DURATION = 0.3  # Time to apply forward/backward force.
 STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
@@ -76,8 +76,8 @@ class RCCar:
         return np.array([reduced_readings])
 
     def recover(self):
-        # Back up and turn to the left to try to get away from the obstacle.
-        self.perform_action(0, True)
+        # Back up.
+        self.perform_action(2, True)
 
     def perform_action(self, action, reverse=False):
         print("Performing an action: %d" % action)
@@ -110,7 +110,8 @@ class RCCar:
         GPIO.output(RIGHT_PIN, 0)
 
         # Pause just to see what's going on.
-        time.sleep(ITER_PAUSE)
+        if ITER_PAUSE:
+            time.sleep(ITER_PAUSE)
 
     def car_is_crashed(self, readings):
         # If any of the readings show less than 5cm, we're crashed.
