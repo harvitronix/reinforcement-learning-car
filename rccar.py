@@ -40,11 +40,6 @@ class RCCar:
     def step(self, action):
         self.perform_action(action)
 
-        # Now that we've moved, check/recover if crashed.
-        while self.car_is_crashed(self.get_readings()):
-            print("Recovering.")
-            self.recover()
-
     def cleanup_gpio(self):
         print("Cleaning up GPIO pins.")
         GPIO.cleanup()
