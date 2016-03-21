@@ -7,8 +7,8 @@ from rccar import RCCar
 
 
 def get_model():
-    saved_model = 'saved-models-driving/164-150-100-50000-25000.h5'
-    return neural_net(3, [164, 150], saved_model)
+    saved_model = 'saved-models-driving/1000-1000-400-50000-100000.h5'
+    return neural_net(3, [1000, 1000], saved_model)
 
 
 def get_action_from_net(readings, model):
