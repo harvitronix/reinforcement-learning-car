@@ -17,6 +17,8 @@ PINS = [[23, 24], [25, 8], [20, 21]]
 class Sensors:
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
+
+        # Initialize the sensors.
         for sensor in PINS:
             GPIO.setup(sensor[0], GPIO.OUT)
             GPIO.setup(sensor[1], GPIO.IN)
@@ -30,32 +32,26 @@ class Sensors:
     def get_readings(self):
         readings = []
         for sensor in PINS:
-            sensor_total = 0
+            iterations = 0
 
-            # Do it three times to reduce anomolies.
-            for i in range(3):
-                iterations = 0
+            # Blip.
+            GPIO.output(sensor[0], True)
+            time.sleep(0.00001)
+            GPIO.output(sensor[0], False)
 
-                # Blip.
-                GPIO.output(sensor[0], True)
-                time.sleep(0.00001)
-                GPIO.output(sensor[0], False)
+            # Read.
+            while GPIO.input(sensor[1]) == 0 and iterations < 10000:
+                pulse_start = time.time()
+                iterations += 1
 
-                # Read.
-                while GPIO.input(sensor[1]) == 0 and iterations < 10000:
-                    pulse_start = time.time()
-                    iterations += 1
+            while GPIO.input(sensor[1]) == 1:
+                pulse_end = time.time()
 
-                while GPIO.input(sensor[1]) == 1:
-                    pulse_end = time.time()
+            # Turn time into distance.
+            pulse_duration = pulse_end - pulse_start
+            distance = pulse_duration * 17150
 
-                # Turn time into distance.
-                pulse_duration = pulse_end - pulse_start
-                distance = pulse_duration * 17150
-
-                sensor_total += distance
-
-            readings.append(round(sensor_total / 3, 2))
+            readings.append(distance)
 
         return readings
 
