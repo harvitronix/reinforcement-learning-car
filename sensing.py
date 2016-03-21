@@ -25,6 +25,7 @@ class Sensors:
         # Wait for sensors to settle.
         print("Initializing sensors.")
         time.sleep(2)
+        print("Ready.")
 
     def get_readings(self):
         readings = []
@@ -54,7 +55,7 @@ class Sensors:
 
                 sensor_total += distance
 
-            readings.append(round(distance / 3, 2))
+            readings.append(round(sensor_total / 3, 2))
 
         return readings
 

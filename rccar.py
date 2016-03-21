@@ -42,6 +42,7 @@ class RCCar:
 
         # Now that we've moved, check/recover if crashed.
         while self.car_is_crashed(self.get_readings()):
+            print("Recovering.")
             self.recover()
 
     def cleanup_gpio(self):
@@ -80,7 +81,7 @@ class RCCar:
         self.perform_action(2, True)
 
     def perform_action(self, action, reverse=False):
-        print("Performing an action: %d" % action)
+        #print("Performing an action: %d" % action)
         if action == 1:  # Turn left.
             GPIO.output(LEFT_PIN, 1)
             print("Turning left.")
@@ -93,7 +94,6 @@ class RCCar:
         # Now that the wheel is turned (or not), move a bit.
         if reverse:
             GPIO.output(BACKWARD_PIN, 1)
-            print("Reversing.")
         else:
             GPIO.output(FORWARD_PIN, 1)
 
