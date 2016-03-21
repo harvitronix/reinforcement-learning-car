@@ -81,7 +81,6 @@ class RCCar:
         self.perform_action(2, True)
 
     def perform_action(self, action, reverse=False):
-        #print("Performing an action: %d" % action)
         if action == 1:  # Turn left.
             GPIO.output(LEFT_PIN, 1)
             print("Turning left.")
@@ -116,7 +115,7 @@ class RCCar:
     def car_is_crashed(self, readings):
         # If any of the readings show less than 5cm, we're crashed.
         for reading in readings[0]:
-            if reading < 4:
+            if reading < 7:
                 return True
         return False
 
