@@ -12,12 +12,12 @@ LEFT_PIN = 13
 RIGHT_PIN = 15
 FORWARD_PIN = 12
 BACKWARD_PIN = 11
-ITER_PAUSE = 0.2  # Time to pause between actions for observation.
+ITER_PAUSE = 0.1  # Time to pause between actions for observation.
 MOVE_DURATION = 0.3  # Time to apply forward/backward force.
 STEERING_DELAY = 0.5  # Time to wait after we move before straightening.
 
 # Used for getting sensor readings.
-HOST = '192.168.2.12'
+HOST = '192.168.2.13'
 PORT = 8888
 SIZE = 1024
 

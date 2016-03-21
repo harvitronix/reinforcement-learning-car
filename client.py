@@ -7,11 +7,11 @@ import socket
 import numpy as np
 import time
 
-HOST = '192.168.2.12'
+HOST = '192.168.2.13'
 PORT = 8888
 SIZE = 1024
 
-for i in range(10):
+while True:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     s.connect((HOST, PORT))
@@ -25,4 +25,4 @@ for i in range(10):
     readings = [float(i) for i in readings]
     print(np.array([readings]))
 
-    time.sleep(1)
+    time.sleep(0.5)
