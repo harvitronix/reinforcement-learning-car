@@ -48,8 +48,11 @@ class Sensors:
                 pulse_end = time.time()
 
             # Turn time into distance.
-            pulse_duration = pulse_end - pulse_start
-            distance = pulse_duration * 17150
+            try:
+                pulse_duration = pulse_end - pulse_start
+                distance = pulse_duration * 17150
+            except:
+                distance = 0
 
             readings.append(distance)
 
