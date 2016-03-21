@@ -68,13 +68,15 @@ class RCCar:
 
         # The max value in training is 39, so let's reduce to see
         # what happens.
+        """
         reduced_readings = []
         for reading in readings:
             if reading > 39:
                 reading = 39
             reduced_readings.append(reading)
-        print(reduced_readings)
-        return np.array([reduced_readings])
+        """
+        print(readings)
+        return np.array([readings])
 
     def recover(self):
         # Back up.
