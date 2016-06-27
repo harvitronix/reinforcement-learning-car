@@ -4,7 +4,7 @@
 
 This is a hobby project I created to learn the basics of reinforcement learning. It uses Python3, Pygame, Pymunk, Keras and Theanos. It employes a Q-learning (unsupervised) algorithm to learn how to move an object around a screen (drive itself) without running into obstacles.
 
-The purpose of this project is to eventually use the learnings from the game to operate a real-life remote-control car, using distance sensors.
+The purpose of this project is to eventually use the learnings from the game to operate a real-life remote-control car, using distance sensors. I am carrying on that project in another GitHub repo here: https://github.com/harvitronix/rl-rc-car
 
 This version of the code attempts to simulate the use of sensors to get us a step closer to being able to use this in the real world.
 
@@ -60,6 +60,7 @@ This will also spit out a bunch of loss and distance averages at the different p
 
 I'm grateful to the following people and the work they did that helped me learn how to do this:
 
+- Playing Atari with Deep Reinforcement Learning - http://arxiv.org/pdf/1312.5602.pdf
 - Deep learning to play Atari games: https://github.com/spragunr/deep_q_rl
 - Another deep learning project for video games: https://github.com/asrivat1/DeepLearningVideoGames
 - A great tutorial on reinforcement learning that a lot of my project is based on: http://outlace.com/Reinforcement-Learning-Part-3/
