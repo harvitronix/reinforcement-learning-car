@@ -24,7 +24,7 @@ https://medium.com/@harvitronix/reinforcement-learning-in-python-to-teach-an-rc-
 1. Clone this repo
 1. Install numpy ```pip3 install numpy```
 2. Install Pygame. I used these instructions: http://askubuntu.com/questions/401342/how-to-download-pygame-in-python3-3 but with ```pip3 install hg+http://bitbucket.org/pygame/pygame``` after I installed the dependencies
-3. Install pymunk ```pip3 install pymunk```
+3. Install pymunk ```pip3 install pymunk``` *Note*: A recent refactor of Pymunk has removed the draw method. You will need to checkout an older state of the repo to get it to work. This one worked for me, though I haven't verified the other changes: 0a75449d095ab8f908b615b57694f10f8db1ae72
 4. Update pymunk to python3 by CDing into its directory and running ```2to3 -w *.py```
 5. Install Keras ```pip3 install keras```
 6. Upgrade Theanos ```pip3 install git+git://github.com/Theano/Theano.git --upgrade --no-deps```
