@@ -86,7 +86,7 @@ Then, watch the car drive itself around the obstacles!
 
 That's all there is to it.
 
-### plotting
+### Plotting
 
 Once you have a bunch of CSV files created via the learning, you can convert those into graphs by running:
 
