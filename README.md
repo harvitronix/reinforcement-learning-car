@@ -68,7 +68,7 @@ Install it:
 
 Now go back to where you cloned `reinforcement-learning-car` and make sure everything worked with a quick `python3 learning.py`. If you see a screen come up with a little dot flying around the screen, you're ready to go!
 
-### Training
+## Training
 
 First, you need to train a model. This will save weights to the `saved-models` folder. *You may need to create this folder before running*. You can train the model by running:
 
@@ -76,7 +76,7 @@ First, you need to train a model. This will save weights to the `saved-models` f
 
 It can take anywhere from an hour to 36 hours to train a model, depending on the complexity of the network and the size of your sample. However, it will spit out weights every 25,000 frames, so you can move on to the next step in much less time.
 
-### Playing
+## Playing
 
 Edit the `nn.py` file to change the path name for the model you want to load. Sorry about this, I know it should be a command line argument.
 
@@ -86,7 +86,7 @@ Then, watch the car drive itself around the obstacles!
 
 That's all there is to it.
 
-### Plotting
+## Plotting
 
 Once you have a bunch of CSV files created via the learning, you can convert those into graphs by running:
 
