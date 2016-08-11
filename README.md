@@ -23,7 +23,7 @@ These instructions are for a fresh Ubuntu 16.04 box. Most of the same should app
 
 ### Basics
 
-Recent Ubuntu releases come with python3 installed. I use pip3 for installing dependencies for install that with `sudo apt install python3-pip`. Install git if you don't already have it with `sudo apt install git`.
+Recent Ubuntu releases come with python3 installed. I use pip3 for installing dependencies so install that with `sudo apt install python3-pip`. Install git if you don't already have it with `sudo apt install git`.
 
 Then clone this repo with `git clone https://github.com/harvitronix/reinforcement-learning-car.git`. It has some pretty big weights files saved in past commits, so to just get the latest the fastest, do `git clone https://github.com/harvitronix/reinforcement-learning-car.git --depth 1`.
 
