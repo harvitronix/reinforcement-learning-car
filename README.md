@@ -17,18 +17,56 @@ Full writeups that pertain to version 1.0.0 can be found here:
 *Part 3 (for this version of the code):*
 https://medium.com/@harvitronix/reinforcement-learning-in-python-to-teach-an-rc-car-to-avoid-obstacles-part-3-a1d063ac962f
 
-## To run for your first time
+## Installing
 
-### Installing
+These instructions are for a fresh Ubuntu 16.04 box. Most of the same should apply to OS X. If you have issues installing, feel free to open an issue with your error and I'll do my best to help.
 
-1. Clone this repo
-1. Install numpy ```pip3 install numpy```
-2. Install Pygame. I used these instructions: http://askubuntu.com/questions/401342/how-to-download-pygame-in-python3-3 but with ```pip3 install hg+http://bitbucket.org/pygame/pygame``` after I installed the dependencies
-3. Install pymunk by downloading and installing Pymunk 4. Using version 5 will not work as it was a major refactor. V4 is at https://github.com/viblo/pymunk/releases/tag/pymunk-4.0.0
-4. Update pymunk to python3 by CDing into its directory and running ```2to3 -w *.py```
-5. Install Keras ```pip3 install keras```
-6. Upgrade Theanos ```pip3 install git+git://github.com/Theano/Theano.git --upgrade --no-deps```
-7. Install h5py for saving models ```pip3 install h5py```
+### Basics
+
+Recent Ubuntu releases come with python3 installed. I use pip3 for installing dependencies for install that with `sudo apt install python3-pip`. Install git if you don't already have it with `sudo apt install git`.
+
+Then clone this repo with `git clone https://github.com/harvitronix/reinforcement-learning-car.git`. It has some pretty big weights files saved in past commits, so to just get the latest the fastest, do `git clone https://github.com/harvitronix/reinforcement-learning-car.git --depth 1`.
+
+### Python dependencies
+
+`pip3 install numpy keras h5py`
+
+That should install a slew of other libraries you need as well.
+
+### Install Pygame
+
+Install Pygame's dependencies with:
+
+`sudo apt install mercurial libfreetype6-dev libsdl-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsmpeg-dev libportmidi-dev libavformat-dev libsdl-mixer1.2-dev libswscale-dev libjpeg-dev`
+
+Then install Pygame itself:
+
+`pip3 install hg+http://bitbucket.org/pygame/pygame`
+
+### Install Pymunk
+
+This is the physics engine used by the simulation. It just went through a pretty significant rewrite (v5) so you need to grab the older v4 version. v4 is written for Python3 so there are a couple extra steps.
+
+Go back to your home or downloads and get Pymunk 4:
+
+`wget https://github.com/viblo/pymunk/archive/pymunk-4.0.0.tar.gz`
+
+Unpack it:
+
+`tar zxvf pymunk-4.0.0.tar.gz`
+
+Update from Python 2 to 3:
+
+`cd pymunk-pymukn-4.0.0/pymunk`
+
+`2to3 -w *.py`
+
+Install it:
+
+`cd ..`
+`python3 setup.py install`
+
+Now go back to where you cloned `reinforcement-learning-car` and make sure everything worked with a quick `python3 learning.py`. If you see a screen come up with a little dot flying around the screen, you're ready to go!
 
 ### Training
 
