@@ -45,7 +45,7 @@ Then install Pygame itself:
 
 ### Install Pymunk
 
-This is the physics engine used by the simulation. It just went through a pretty significant rewrite (v5) so you need to grab the older v4 version. v4 is written for Python3 so there are a couple extra steps.
+This is the physics engine used by the simulation. It just went through a pretty significant rewrite (v5) so you need to grab the older v4 version. v4 is written for Python 2 so there are a couple extra steps.
 
 Go back to your home or downloads and get Pymunk 4:
 
