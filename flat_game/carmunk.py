@@ -131,7 +131,8 @@ class GameState:
         # Get the current location and the readings there.
         x, y = self.car_body.position
         readings = self.get_sonar_readings(x, y, self.car_body.angle)
-        state = np.array([readings])
+        normalized_readings = [(x-20.0)/20.0 for x in readings] 
+        state = np.array([normalized_readings])
 
         # Set the reward.
         # Car crashed when any reading == 1
