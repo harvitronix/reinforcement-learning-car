@@ -17,7 +17,7 @@ def train_net(model, params):
 
     observe = 1000  # Number of frames to observe before training.
     epsilon = 1
-    train_frames = 1000000  # Number of frames to play.
+    train_frames = 100000  # Number of frames to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -180,7 +180,7 @@ def process_minibatch(minibatch, model):
         old_qval = model.predict(old_state_m, batch_size=1)
         # Get prediction on new state.
         newQ = model.predict(new_state_m, batch_size=1)
-        # Get our best move. I think?
+        # Get our predicted best move.
         maxQ = np.max(newQ)
         y = np.zeros((1, 3))
         y[:] = old_qval[:]
@@ -243,9 +243,9 @@ if __name__ == "__main__":
             launch_learn(param_set)
 
     else:
-        nn_param = [164, 150]
+        nn_param = [128, 128]
         params = {
-            "batchSize": 100,
+            "batchSize": 64,
             "buffer": 50000,
             "nn": nn_param
         }

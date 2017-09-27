@@ -176,7 +176,7 @@ class GameState:
             self.crashed = False
             for i in range(10):
                 self.car_body.angle += .2  # Turn a little.
-                screen.fill(THECOLORS["red"])  # Red is scary!
+                screen.fill(THECOLORS["grey7"])  # Red is scary!
                 draw(screen, self.space)
                 self.space.step(1./10)
                 if draw_screen:
