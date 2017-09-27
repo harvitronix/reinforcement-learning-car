@@ -70,7 +70,7 @@ def train_net(model, params):
             minibatch = random.sample(replay, batchSize)
 
             # Get training values.
-            X_train, y_train = process_minibatch(minibatch, model)
+            X_train, y_train = process_minibatch2(minibatch, model)
 
             # Train the model on this batch.
             history = LossHistory()
@@ -130,6 +130,42 @@ def log_results(filename, data_collect, loss_log):
         for loss_item in loss_log:
             wr.writerow(loss_item)
 
+def process_minibatch2(minibatch, model):
+    # by Microos, improve this batch processing function 
+    #   and gain 50~60x faster speed (tested on GTX 1080)
+    #   significantly increase the training FPS
+    
+    # instead of feeding data to the model one by one, 
+    #   feed the whole batch is much more efficient
+
+    mb_len = len(minibatch)
+
+    old_states = np.zeros(shape=(mb_len, 3))
+    actions = np.zeros(shape=(mb_len,))
+    rewards = np.zeros(shape=(mb_len,))
+    new_states = np.zeros(shape=(mb_len, 3))
+
+    for i, m in enumerate(minibatch):
+        old_state_m, action_m, reward_m, new_state_m = m
+        old_states[i, :] = old_state_m[...]
+        actions[i] = action_m
+        rewards[i] = reward_m
+        new_states[i, :] = new_state_m[...]
+
+    old_qvals = model.predict(old_states, batch_size=mb_len)
+    new_qvals = model.predict(new_states, batch_size=mb_len)
+
+    maxQs = np.max(new_qvals, axis=1)
+    y = old_qvals
+    non_term_inds = np.where(rewards != -500)[0]
+    term_inds = np.where(rewards == -500)[0]
+
+    y[non_term_inds, actions[non_term_inds].astype(int)] = rewards[non_term_inds] + (GAMMA * maxQs[non_term_inds])
+    y[term_inds, actions[term_inds].astype(int)] = rewards[term_inds]
+
+    X_train = old_states
+    y_train = y
+    return X_train, y_train
 
 def process_minibatch(minibatch, model):
     """This does the heavy lifting, aka, the training. It's super jacked."""
