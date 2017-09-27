@@ -11,9 +11,11 @@ from keras.callbacks import Callback
 
 # Adding this per a suggestion by Tim Kelch.
 # https://medium.com/@trkelch/this-post-is-great-possibly-the-best-tutorial-explanation-ive-found-thus-far-cf78886b5378#.w473ywtbw
-import tensorflow as tf
-tf.python.control_flow_ops = tf
-
+#import tensorflow as tf
+#tf.python.control_flow_ops = tf
+# line 14 & 15 gave an error: tf has no module named python
+# corrected with line 18
+from tensorflow.python.ops import control_flow_ops
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
