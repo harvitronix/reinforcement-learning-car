@@ -85,7 +85,7 @@ def train_net(model, params):
 
         # Decrement epsilon over time.
         if epsilon > 0.1 and t > observe:
-            epsilon -= (1/train_frames)
+            epsilon -= (1.0/train_frames)
 
         # We died, so update stuff.
         if reward == -500:
