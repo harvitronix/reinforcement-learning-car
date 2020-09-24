@@ -15,9 +15,9 @@ def train_net(model, params):
 
     filename = params_to_filename(params)
 
-    observe = 1000  # Number of frames to observe before training.
+    observe = 5000  # Number of frames to observe before training.
     epsilon = 1
-    train_frames = 100000  # Number of frames to play.
+    train_frames = 500000  # Number of frames to play.
     batchSize = params['batchSize']
     buffer = params['buffer']
 
@@ -51,7 +51,7 @@ def train_net(model, params):
         else:
             # Get Q values for each action.
             qval = model.predict(state, batch_size=1)
-            action = (np.argmax(qval))  # best
+            action = (np.argmax(qval))  # best 
 
         # Take action, observe new state and get our treat.
         reward, new_state = game_state.frame_step(action)
@@ -76,7 +76,7 @@ def train_net(model, params):
             history = LossHistory()
             model.fit(
                 X_train, y_train, batch_size=batchSize,
-                nb_epoch=1, verbose=0, callbacks=[history]
+                epochs=1, verbose=0, callbacks=[history]
             )
             loss_log.append(history.losses)
 

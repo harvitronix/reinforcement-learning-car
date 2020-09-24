@@ -23,18 +23,18 @@ def neural_net(num_sensors, params, load=''):
 
     # First layer.
     model.add(Dense(
-        params[0], init='lecun_uniform', input_shape=(num_sensors,)
+        params[0], kernel_initializer='random_uniform', input_shape=(num_sensors,)
     ))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
     # Second layer.
-    model.add(Dense(params[1], init='lecun_uniform'))
+    model.add(Dense(params[1], kernel_initializer='random_uniform'))
     model.add(Activation('relu'))
     model.add(Dropout(0.2))
 
     # Output layer.
-    model.add(Dense(3, init='lecun_uniform'))
+    model.add(Dense(3, kernel_initializer='random_uniform'))
     model.add(Activation('linear'))
 
     rms = RMSprop()

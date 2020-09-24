@@ -59,17 +59,44 @@ class GameState:
             s.group = 1
             s.collision_type = 1
             s.color = THECOLORS['red']
+
         self.space.add(static)
 
         # Create some obstacles, semi-randomly.
         # We'll create three and they'll move around to prevent over-fitting.
         self.obstacles = []
-        self.obstacles.append(self.create_obstacle(200, 350, 100))
-        self.obstacles.append(self.create_obstacle(700, 200, 125))
+        self.obstacles.append(self.create_obstacle(200, 350, 35))
+        self.obstacles.append(self.create_obstacle(700, 200, 35))
+        self.obstacles.append(self.create_obstacle(600, 600, 35))
         self.obstacles.append(self.create_obstacle(600, 600, 35))
 
         # Create a cat.
         self.create_cat()
+
+        self.add_wall()
+
+
+    def add_wall(self):
+        """
+        Create the static bodies.
+        :return: None
+        """
+        static_body = self.space.static_body
+        static_lines = [
+        pymunk.Segment(static_body, (111.0, 280.0), (407.0, 246.0), 0.0),
+                        pymunk.Segment(static_body, (407.0, 246.0), (407.0, 343.0), 0.0),
+                        # pymunk.Segment(self.space.static_body, Vec2d(1000,85), Vec2d(550,85), 1),
+                        # pymunk.Segment(self.space.static_body, Vec2d(550,85), Vec2d(550,400), 1),
+                        # pymunk.Segment(self.space.static_body, Vec2d(55,50), Vec2d(55,550), 1),
+                        # pymunk.Segment(self.space.static_body, Vec2d(55,550), Vec2d(400,550), 1)
+                        ]
+
+        for line in static_lines:
+            line.elasticity = 0.95
+            line.friction = 0.9
+
+        self.space.add(static_lines)
+
 
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -81,10 +108,11 @@ class GameState:
         return c_body
 
     def create_cat(self):
+
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
         self.cat_body = pymunk.Body(1, inertia)
         self.cat_body.position = 50, height - 100
-        self.cat_shape = pymunk.Circle(self.cat_body, 30)
+        self.cat_shape = pymunk.Circle(self.cat_body, 25)
         self.cat_shape.color = THECOLORS["orange"]
         self.cat_shape.elasticity = 1.0
         self.cat_shape.angle = 0.5
@@ -95,7 +123,7 @@ class GameState:
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
         self.car_body = pymunk.Body(1, inertia)
         self.car_body.position = x, y
-        self.car_shape = pymunk.Circle(self.car_body, 25)
+        self.car_shape = pymunk.Circle(self.car_body, 35)
         self.car_shape.color = THECOLORS["green"]
         self.car_shape.elasticity = 1.0
         self.car_body.angle = r
@@ -149,7 +177,7 @@ class GameState:
 
     def move_obstacles(self):
         # Randomly move obstacles around.
-        for obstacle in self.obstacles:
+        for num, obstacle in enumerate(self.obstacles):
             speed = random.randint(1, 5)
             direction = Vec2d(1, 0).rotated(self.car_body.angle + random.randint(-2, 2))
             obstacle.velocity = speed * direction
@@ -176,7 +204,7 @@ class GameState:
             self.crashed = False
             for i in range(10):
                 self.car_body.angle += .2  # Turn a little.
-                screen.fill(THECOLORS["grey7"])  # Red is scary!
+                screen.fill(THECOLORS["red"])  # Red is scary!
                 draw(screen, self.space)
                 self.space.step(1./10)
                 if draw_screen:
@@ -273,4 +301,6 @@ class GameState:
 if __name__ == "__main__":
     game_state = GameState()
     while True:
+        # game_state.frame_step((0))
         game_state.frame_step((random.randint(0, 2)))
+
